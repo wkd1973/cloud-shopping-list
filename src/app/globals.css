@@ -1,0 +1,51 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-sans: 'DM Sans', sans-serif;
+  --font-mono: 'DM Mono', monospace;
+}
+
+/* Scrollbar stylizacja */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+
+/* Item buy animation */
+@keyframes strikethrough {
+  from { width: 0; }
+  to   { width: 100%; }
+}
+
+.item-bought::after {
+  content: '';
+  position: absolute;
+  left: 0; top: 50%;
+  height: 2px;
+  background: #64748b;
+  animation: strikethrough 0.3s ease-out forwards;
+}
+
+/* Fade in dla nowych items (Realtime insert) */
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.item-new {
+  animation: fadeSlideIn 0.25s ease-out;
+}
+
+/* Shake dla błędów walidacji */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%       { transform: translateX(-6px); }
+  40%       { transform: translateX(6px); }
+  60%       { transform: translateX(-4px); }
+  80%       { transform: translateX(4px); }
+}
+
+.shake {
+  animation: shake 0.4s ease-out;
+}
