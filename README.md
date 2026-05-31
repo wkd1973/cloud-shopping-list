@@ -9,9 +9,10 @@ Cel: zweryfikować Realtime, RLS, magic link auth i invite flow przed wdrożenie
 
 - ✅ Współdzielona lista zakupów dla grupy domowników
 - ✅ Live sync — zmiany widoczne u wszystkich **bez przeładowania** (Supabase Realtime)
-- ✅ Logowanie bez hasła (magic link na email)
-- ✅ Zapraszanie domowników przez jednorazowy link
-- ✅ Kategorie z kolorami i emoji
+- ✅ Logowanie bez hasła (magic link na email) oraz przez **Google** i **Facebook** (OAuth)
+- ✅ Zapraszanie domowników przez jednorazowy link i podgląd listy członków
+- ✅ Obsługa wielu domostw (możliwość przełączania się między gospodarstwami)
+- ✅ Kategorie z kolorami i emoji oraz sortowanie produktów (A-Z lub po kategoriach)
 - ✅ Oznaczanie produktów jako kupione → auto-archiwizacja po 24h (pg_cron)
 - ✅ Optimistic updates — UI reaguje natychmiast, nie czeka na serwer
 
@@ -148,9 +149,10 @@ Token generuje baza (`encode(gen_random_bytes(32), 'hex')`), nie JavaScript.
 Po użyciu token jest oznaczany (`used_at`) — nie działa ponownie.  
 Wygasanie: `expires_at = now() + 7 days` — indeks na `token` dla szybkiego lookup.
 
-#### 6. Magic link zamiast hasła
+#### 6. System Autoryzacji (Magic link, Google, Facebook)
 Prostsze UX, bez formularza reset hasła, bez przechowywania haszy.  
-Supabase Auth obsługuje całość — wysyłka maila, jednorazowy kod, wymiana na JWT.  
+Supabase Auth obsługuje logowanie przez email (jednorazowy link z kodem) oraz integrację OAuth (Google, Facebook).  
+Mechanizm **Automatic User Linking** łączy konta użytkowników logujących się z tego samego adresu e-mail różnymi metodami.  
 `/auth/callback` route wymienia `code` z URL na session cookies.
 
 #### 7. Auto-archiwizacja przez pg_cron
@@ -209,8 +211,17 @@ zakupy/
 
 ## Znane uproszczenia (celowe dla PoC)
 
-- Brak obsługi wielu gospodarstw naraz — jedno per użytkownik
 - Brak edycji produktu po dodaniu (tylko usuń i dodaj ponownie)
 - Brak zarządzania kategoriami z UI (edycja tylko przez SQL)
-- Brak testów
-- Magic link działa tylko jeśli mail nie trafi do spamu (przy testach lokalnych sprawdź Supabase Logs → Auth)
+- Brak testów automatycznych
+- Logowanie przez Facebook/Google w środowisku produkcyjnym wymaga weryfikacji domen i aplikacji po stronie dostawców OAuth.
+
+---
+
+## Lokalny build
+
+npm run build
+
+## Lokalny start
+
+npm start

@@ -1,77 +1,89 @@
-// Server Component — główna strona listy zakupów.
-//
-// Odpowiada za:
-// 1. Weryfikację sesji (middleware już to robi, ale defensywne sprawdzenie jest OK)
-// 2. Pobranie danych z Supabase (SSR — pierwsze renderowanie bez waterfall)
-// 3. Przekazanie danych do Client Component ShoppingList
-//
-// Dane pobieramy tu, w Server Component, bo:
-// - Brak dodatkowego round-trip przeglądarki
-// - Klucze API nie wychodzą do klienta
-// - Strona renderuje się z danymi od razu (no loading flash)
-//
-// Po pierwszym renderowaniu ShoppingList przejmuje kontrolę i
-// subskrybuje Realtime — dalsze zmiany wpadają bez przeładowania strony.
+// /list — ekran wyboru listy zakupów
+// Pokazuje wszystkie aktywne listy gospodarstwa jako kafelki.
+// Stąd użytkownik wchodzi w konkretną listę lub tworzy nową.
 
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import ShoppingList from '@/components/ShoppingList'
 import OnboardingModal from '@/components/OnboardingModal'
-import type { Category, Item } from '@/lib/types'
+import ListsScreen from '@/components/ListsScreen'
+import type { ShoppingList } from '@/lib/types'
 
-export default async function ListPage() {
+interface Props {
+  searchParams: Promise<{ householdId?: string }>
+}
+
+export default async function ListsPage(props: Props) {
+  const searchParams = await props.searchParams
   const supabase = await createClient()
-
-  // Pobierz zalogowanego użytkownika
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth/login')
 
-  // Pobierz gospodarstwo użytkownika (pierwsze znalezione)
-  // W v2 można obsłużyć wiele gospodarstw z przełącznikiem
-  const { data: membership } = await supabase
+  const { data: memberships } = await supabase
     .from('household_members')
     .select('household_id, role, households(id, name)')
     .eq('user_id', user.id)
-    .limit(1)
-    .single()
+    .order('joined_at', { ascending: false })
 
-  // Użytkownik bez gospodarstwa — pokaż onboarding
-  if (!membership) {
+  if (!memberships || memberships.length === 0) {
     return (
-      <main className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
+      <main className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <OnboardingModal userId={user.id} userEmail={user.email!} />
       </main>
     )
   }
 
-  const householdId = membership.household_id
-  const household = membership.households as { id: string; name: string }
+  // Find the selected membership or default to the first one
+  const selectedHouseholdId = searchParams.householdId
+  const activeMembership = selectedHouseholdId 
+    ? memberships.find(m => m.household_id === selectedHouseholdId) ?? memberships[0]
+    : memberships[0]
 
-  // Pobierz kategorie i aktywne produkty równolegle (Promise.all = brak waterfall)
-  const [{ data: categories }, { data: items }] = await Promise.all([
-    supabase
-      .from('categories')
-      .select('*')
-      .eq('household_id', householdId)
-      .order('sort_order'),
+  const householdId = activeMembership.household_id
+  const household   = activeMembership.households as unknown as { id: string; name: string }
 
-    supabase
-      .from('items')
-      .select('*, category:categories(*)')
-      .eq('household_id', householdId)
-      .is('archived_at', null)           // tylko aktywne (nie archiwum)
-      .order('created_at', { ascending: false }),
-  ])
+  // Map memberships for the UI dropdown
+  const userHouseholds = memberships.map(m => ({
+    id: m.household_id,
+    name: (m.households as unknown as { id: string; name: string }).name,
+    role: m.role
+  }))
+
+  // Pobierz listy + liczbę aktywnych produktów na każdej
+  const { data: lists } = await supabase
+    .from('shopping_lists')
+    .select('*')
+    .eq('household_id', householdId)
+    .is('archived_at', null)
+    .order('created_at', { ascending: true })
+
+  // Policz aktywne produkty per lista
+  const { data: counts } = await supabase
+    .from('items')
+    .select('list_id')
+    .eq('household_id', householdId)
+    .is('archived_at', null)
+    .eq('is_bought', false)
+
+  const countMap = (counts ?? []).reduce<Record<string, number>>((acc, item) => {
+    if (item.list_id) acc[item.list_id] = (acc[item.list_id] ?? 0) + 1
+    return acc
+  }, {})
+
+  const listsWithCount: ShoppingList[] = (lists ?? []).map(l => ({
+    ...l,
+    item_count: countMap[l.id] ?? 0,
+  }))
 
   return (
-    <ShoppingList
-      initialItems={(items ?? []) as Item[]}
-      categories={(categories ?? []) as Category[]}
+    <ListsScreen
+      key={householdId}
+      lists={listsWithCount}
       householdId={householdId}
       householdName={household.name}
+      userHouseholds={userHouseholds}
       userId={user.id}
       userEmail={user.email!}
-      isAdmin={membership.role === 'admin'}
+      isAdmin={activeMembership.role === 'admin'}
     />
   )
 }

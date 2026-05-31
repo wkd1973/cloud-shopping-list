@@ -1,7 +1,3 @@
-// Typy odzwierciedlające schemat bazy.
-// Docelowo generowane automatycznie przez Supabase CLI:
-//   supabase gen types typescript --linked > src/lib/types.ts
-
 export type Role = 'admin' | 'member'
 
 export interface Household {
@@ -31,6 +27,18 @@ export interface HouseholdInvite {
   used_by: string | null
 }
 
+export interface ShoppingList {
+  id: string
+  household_id: string
+  name: string
+  emoji: string
+  archived_at: string | null
+  created_by: string | null
+  created_at: string
+  // computed
+  item_count?: number
+}
+
 export interface Category {
   id: string
   household_id: string
@@ -44,6 +52,7 @@ export interface Category {
 export interface Item {
   id: string
   household_id: string
+  list_id: string | null
   category_id: string | null
   name: string
   quantity: string | null
@@ -54,17 +63,9 @@ export interface Item {
   bought_at: string | null
   archived_at: string | null
   created_at: string
-  // joined
   category?: Category | null
 }
 
-// Pogrupowana lista dla widoku
-export interface ItemsByCategory {
-  category: Category | null
-  items: Item[]
-}
-
-// Payload do Server Actions
 export interface AddItemPayload {
   name: string
   quantity?: string

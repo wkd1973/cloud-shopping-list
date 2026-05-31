@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+
+<html lang="pl"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>🥦 Warzywa - Grocery List</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&amp;family=DM+Mono&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "tertiary-fixed": "#ffdad7",
+                      "on-primary-fixed": "#002113",
+                      "inverse-on-surface": "#ebf3eb",
+                      "text-primary": "#1f2937",
+                      "on-tertiary-container": "#711419",
+                      "on-secondary-fixed-variant": "#3b4a44",
+                      "background": "#f4fbf4",
+                      "on-tertiary": "#ffffff",
+                      "on-primary": "#ffffff",
+                      "error-container": "#ffdad6",
+                      "text-secondary": "#6b7280",
+                      "primary-fixed-dim": "#4edea3",
+                      "on-surface-variant": "#3c4a42",
+                      "surface-variant": "#dde4dd",
+                      "inverse-surface": "#2b322d",
+                      "on-error": "#ffffff",
+                      "border-subtle": "#e5e7eb",
+                      "on-primary-fixed-variant": "#005236",
+                      "on-primary-container": "#00422b",
+                      "surface-container": "#e8f0e9",
+                      "on-error-container": "#93000a",
+                      "inverse-primary": "#4edea3",
+                      "surface-container-lowest": "#ffffff",
+                      "on-secondary": "#ffffff",
+                      "secondary": "#52625c",
+                      "surface-dim": "#d4dcd5",
+                      "surface-tint": "#006c49",
+                      "category-produce": "#22c55e",
+                      "surface-bg": "#f9fafb",
+                      "error": "#ba1a1a",
+                      "tertiary-fixed-dim": "#ffb3af",
+                      "on-surface": "#161d19",
+                      "on-tertiary-fixed": "#410005",
+                      "surface-container-highest": "#dde4dd",
+                      "on-tertiary-fixed-variant": "#842225",
+                      "secondary-fixed": "#d5e6df",
+                      "surface-container-high": "#e3eae3",
+                      "on-background": "#161d19",
+                      "category-dairy": "#3b82f6",
+                      "secondary-container": "#d3e3dc",
+                      "on-secondary-container": "#566660",
+                      "primary-fixed": "#6ffbbe",
+                      "primary": "#006c49",
+                      "on-secondary-fixed": "#101e1a",
+                      "surface": "#f4fbf4",
+                      "outline-variant": "#bbcabf",
+                      "tertiary-container": "#fc7c78",
+                      "primary-container": "#10b981",
+                      "surface-container-low": "#eef6ee",
+                      "tertiary": "#a43a3a",
+                      "secondary-fixed-dim": "#bacac3",
+                      "surface-bright": "#f4fbf4",
+                      "category-meat": "#ef4444",
+                      "outline": "#6c7a71"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "stack-sm": "0.5rem",
+                      "margin-mobile": "1rem",
+                      "stack-md": "1rem",
+                      "stack-lg": "1.5rem",
+                      "gutter": "1rem"
+              },
+              "fontFamily": {
+                      "body-lg": ["DM Sans"],
+                      "code-sm": ["DM Mono"],
+                      "headline-md": ["DM Sans"],
+                      "label-sm": ["DM Sans"],
+                      "body-md": ["DM Sans"],
+                      "headline-lg": ["DM Sans"]
+              },
+              "fontSize": {
+                      "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "500"}],
+                      "code-sm": ["12px", {"lineHeight": "16px", "fontWeight": "400"}],
+                      "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                      "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                      "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                      "headline-lg": ["24px", {"lineHeight": "32px", "fontWeight": "600"}]
+              }
+            },
+          },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .squircle {
+            border-radius: 2rem;
+        }
+        @keyframes fadeSlideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeSlideIn 0.4s ease-out forwards;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-md text-body-md mb-24 overflow-x-hidden">
+<!-- Top Navigation Anchor (Shared Component) -->
+<header class="bg-surface dark:bg-on-surface-variant docked full-width top-0 shadow-sm z-40 fixed">
+<div class="flex items-center justify-between px-margin-mobile w-full max-w-screen-sm mx-auto h-16">
+<button class="active:scale-95 transition-transform duration-200 text-primary dark:text-primary-fixed">
+<span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
+</button>
+<h1 class="font-headline-lg text-headline-lg font-bold text-primary dark:text-primary-fixed">🥦 Warzywa</h1>
+<button class="active:scale-95 transition-transform duration-200 text-primary dark:text-primary-fixed">
+<span class="material-symbols-outlined" data-icon="more_vert">more_vert</span>
+</button>
+</div>
+</header>
+<main class="max-w-screen-sm mx-auto pt-20 px-margin-mobile">
+<!-- Integrated Header Gradient Section -->
+<section class="mt-4 mb-8 p-6 rounded-3xl bg-gradient-to-br from-primary-container to-primary text-on-primary-container shadow-lg relative overflow-hidden">
+<div class="relative z-10">
+<h2 class="font-headline-md text-headline-md font-bold mb-1">Stock Up!</h2>
+<p class="font-body-md text-body-md opacity-90">You have 12 items remaining in your vegetable list.</p>
+</div>
+<!-- Decorative circle -->
+<div class="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
+</section>
+<!-- Category Large Cards (Bento-style Filter) -->
+<h3 class="font-headline-md text-headline-md mb-4 px-1">Categories</h3>
+<div class="grid grid-cols-2 gap-4 mb-10">
+<div class="bg-surface-container-low p-4 rounded-3xl border border-border-subtle flex flex-col items-center justify-center gap-2 hover:bg-primary-container/20 transition-colors cursor-pointer group active:scale-95 transition-all">
+<div class="w-12 h-12 rounded-full bg-category-produce/20 flex items-center justify-center text-2xl">🥬</div>
+<span class="font-body-lg text-body-lg font-bold text-on-surface">Leafy</span>
+</div>
+<div class="bg-surface-container-low p-4 rounded-3xl border border-border-subtle flex flex-col items-center justify-center gap-2 hover:bg-primary-container/20 transition-colors cursor-pointer group active:scale-95 transition-all">
+<div class="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center text-2xl">🥕</div>
+<span class="font-body-lg text-body-lg font-bold text-on-surface">Roots</span>
+</div>
+<div class="bg-surface-container-low p-4 rounded-3xl border border-border-subtle flex flex-col items-center justify-center gap-2 hover:bg-primary-container/20 transition-colors cursor-pointer group active:scale-95 transition-all">
+<div class="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center text-2xl">🍅</div>
+<span class="font-body-lg text-body-lg font-bold text-on-surface">Fruits</span>
+</div>
+<div class="bg-surface-container-low p-4 rounded-3xl border border-border-subtle flex flex-col items-center justify-center gap-2 hover:bg-primary-container/20 transition-colors cursor-pointer group active:scale-95 transition-all">
+<div class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center text-2xl">🍆</div>
+<span class="font-body-lg text-body-lg font-bold text-on-surface">Gourd</span>
+</div>
+</div>
+<!-- Items Content (Asymmetric Card Layout) -->
+<div class="flex justify-between items-center mb-4 px-1">
+<h3 class="font-headline-md text-headline-md">Your Items</h3>
+<button class="text-primary font-bold font-label-sm text-label-sm flex items-center gap-1">
+                Sort <span class="material-symbols-outlined text-[16px]" data-icon="filter_list">filter_list</span>
+</button>
+</div>
+<div class="grid grid-cols-1 gap-4">
+<!-- Item 1 -->
+<div class="animate-fade-in bg-surface-container-lowest p-4 rounded-2xl border border-gray-200 shadow-sm flex items-center justify-between group hover:border-primary transition-colors">
+<div class="flex items-center gap-4">
+<div class="w-14 h-14 bg-surface-container-high rounded-xl flex items-center justify-center text-3xl">🥦</div>
+<div>
+<h4 class="font-body-lg text-body-lg font-bold">Broccoli</h4>
+<div class="flex items-center gap-2 mt-1">
+<span class="px-2 py-0.5 rounded-full bg-category-produce/10 text-category-produce text-[10px] font-bold uppercase tracking-wider">Fresh</span>
+<span class="text-text-secondary text-[12px]">2 units</span>
+</div>
+</div>
+</div>
+<button class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-primary-container/10 active:scale-90 transition-all">
+<span class="material-symbols-outlined" data-icon="check_circle">check_circle</span>
+</button>
+</div>
+<!-- Item 2 -->
+<div class="animate-fade-in bg-surface-container-lowest p-4 rounded-2xl border border-gray-200 shadow-sm flex items-center justify-between group hover:border-primary transition-colors" style="animation-delay: 0.1s;">
+<div class="flex items-center gap-4">
+<div class="w-14 h-14 bg-surface-container-high rounded-xl flex items-center justify-center text-3xl">🫑</div>
+<div>
+<h4 class="font-body-lg text-body-lg font-bold">Bell Peppers</h4>
+<div class="flex items-center gap-2 mt-1">
+<span class="px-2 py-0.5 rounded-full bg-category-meat/10 text-category-meat text-[10px] font-bold uppercase tracking-wider">Critical</span>
+<span class="text-text-secondary text-[12px]">3 units</span>
+</div>
+</div>
+</div>
+<button class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-primary-container/10 active:scale-90 transition-all">
+<span class="material-symbols-outlined" data-icon="check_circle">check_circle</span>
+</button>
+</div>
+<!-- Item 3 -->
+<div class="animate-fade-in bg-surface-container-lowest p-4 rounded-2xl border border-gray-200 shadow-sm flex items-center justify-between group hover:border-primary transition-colors" style="animation-delay: 0.2s;">
+<div class="flex items-center gap-4">
+<div class="w-14 h-14 bg-surface-container-high rounded-xl flex items-center justify-center text-3xl">🧅</div>
+<div>
+<h4 class="font-body-lg text-body-lg font-bold">Red Onions</h4>
+<div class="flex items-center gap-2 mt-1">
+<span class="px-2 py-0.5 rounded-full bg-category-dairy/10 text-category-dairy text-[10px] font-bold uppercase tracking-wider">Pantry</span>
+<span class="text-text-secondary text-[12px]">1 kg</span>
+</div>
+</div>
+</div>
+<button class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-primary-container/10 active:scale-90 transition-all">
+<span class="material-symbols-outlined" data-icon="check_circle">check_circle</span>
+</button>
+</div>
+<!-- Item 4 (Already checked) -->
+<div class="animate-fade-in bg-surface-container/30 p-4 rounded-2xl border border-gray-100 flex items-center justify-between group opacity-60" style="animation-delay: 0.3s;">
+<div class="flex items-center gap-4">
+<div class="w-14 h-14 bg-surface-container-high/50 rounded-xl flex items-center justify-center text-3xl grayscale">🥕</div>
+<div>
+<h4 class="font-body-lg text-body-lg font-bold line-through">Carrots</h4>
+<span class="text-text-secondary text-[12px]">500g</span>
+</div>
+</div>
+<button class="w-10 h-10 rounded-full flex items-center justify-center text-primary active:scale-90 transition-all">
+<span class="material-symbols-outlined" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</button>
+</div>
+</div>
+</main>
+<!-- Floating Action Button (Speed Dial Logic) -->
+<div class="fixed bottom-24 right-6 flex flex-col items-end gap-3 z-50">
+<!-- Hidden Sub-buttons (revealed by JS) -->
+<div class="hidden flex flex-col gap-3 mb-2 animate-fade-in" id="speed-dial">
+<button class="bg-surface-container-lowest p-3 rounded-full shadow-lg border border-border-subtle flex items-center gap-2 pr-4 hover:bg-primary hover:text-white transition-all">
+<span class="material-symbols-outlined bg-category-produce/20 p-1 rounded-full text-category-produce" data-icon="barcode_scanner">barcode_scanner</span>
+<span class="font-label-sm text-label-sm">Scan</span>
+</button>
+<button class="bg-surface-container-lowest p-3 rounded-full shadow-lg border border-border-subtle flex items-center gap-2 pr-4 hover:bg-primary hover:text-white transition-all">
+<span class="material-symbols-outlined bg-category-dairy/20 p-1 rounded-full text-category-dairy" data-icon="mic">mic</span>
+<span class="font-label-sm text-label-sm">Voice</span>
+</button>
+</div>
+<button class="w-16 h-16 bg-primary-container text-on-primary-container rounded-2xl shadow-xl flex items-center justify-center active:scale-95 transition-all group" id="main-fab" onclick="toggleSpeedDial()">
+<span class="material-symbols-outlined text-3xl transition-transform duration-300" data-icon="add" id="fab-icon">add</span>
+</button>
+</div>
+<!-- Bottom Navigation Bar (Shared Component) -->
+<nav class="fixed bottom-0 w-full z-50 flex justify-around items-center px-4 py-2 pb-6 bg-surface-container-lowest dark:bg-inverse-surface rounded-t-xl shadow-lg">
+<!-- Lists (Active) -->
+<a class="flex flex-col items-center justify-center bg-primary-container dark:bg-primary text-on-primary-container dark:text-on-primary rounded-xl px-4 py-1" href="#">
+<span class="material-symbols-outlined" data-icon="format_list_bulleted" style="font-variation-settings: 'FILL' 1;">format_list_bulleted</span>
+<span class="font-label-sm text-label-sm">Lists</span>
+</a>
+<!-- Pantry -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant px-4 py-1 hover:text-primary dark:hover:text-primary-fixed transition-all active:scale-95" href="#">
+<span class="material-symbols-outlined" data-icon="inventory_2">inventory_2</span>
+<span class="font-label-sm text-label-sm">Pantry</span>
+</a>
+<!-- Shared -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant px-4 py-1 hover:text-primary dark:hover:text-primary-fixed transition-all active:scale-95" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="font-label-sm text-label-sm">Shared</span>
+</a>
+<!-- Profile -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant px-4 py-1 hover:text-primary dark:hover:text-primary-fixed transition-all active:scale-95" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-label-sm text-label-sm">Profile</span>
+</a>
+</nav>
+<script>
+        function toggleSpeedDial() {
+            const dial = document.getElementById('speed-dial');
+            const icon = document.getElementById('fab-icon');
+            const fab = document.getElementById('main-fab');
+
+            if (dial.classList.contains('hidden')) {
+                dial.classList.remove('hidden');
+                dial.classList.add('flex');
+                icon.style.transform = 'rotate(45deg)';
+                fab.classList.remove('bg-primary-container');
+                fab.classList.add('bg-primary', 'text-white');
+            } else {
+                dial.classList.add('hidden');
+                dial.classList.remove('flex');
+                icon.style.transform = 'rotate(0deg)';
+                fab.classList.add('bg-primary-container');
+                fab.classList.remove('bg-primary', 'text-white');
+            }
+        }
+
+        // Tactile card clicks
+        document.querySelectorAll('main > div.grid > div').forEach(card => {
+            card.addEventListener('click', function() {
+                this.classList.add('scale-98', 'opacity-80');
+                setTimeout(() => {
+                    this.classList.remove('scale-98', 'opacity-80');
+                }, 150);
+            });
+        });
+    </script>
+</body></html>

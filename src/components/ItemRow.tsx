@@ -1,6 +1,5 @@
 'use client'
 
-import { useState } from 'react'
 import type { Item } from '@/lib/types'
 
 interface Props {
@@ -10,74 +9,61 @@ interface Props {
 }
 
 export default function ItemRow({ item, onToggle, onDelete }: Props) {
-  const [showDelete, setShowDelete] = useState(false)
-
+  const isBought = item.is_bought
+  const cat = item.category
+  
   return (
-    <div
-      className={`
-        group flex items-center gap-3 px-3 py-2.5 rounded-xl
-        bg-slate-900/60 border transition-all duration-200 item-new
-        ${item.is_bought
-          ? 'border-slate-800/50 opacity-50'
-          : 'border-slate-800 hover:border-slate-700'
-        }
-      `}
-    >
-      {/* Checkbox */}
-      <button
-        onClick={() => onToggle(item.id)}
-        className={`
-          flex-shrink-0 w-5 h-5 rounded-full border-2 transition-all duration-200
-          flex items-center justify-center
-          ${item.is_bought
-            ? 'bg-emerald-500 border-emerald-500'
-            : 'border-slate-600 hover:border-emerald-500/60'
-          }
-        `}
-        aria-label={item.is_bought ? 'Oznacz jako niekupione' : 'Oznacz jako kupione'}
-      >
-        {item.is_bought && (
-          <svg className="w-3 h-3 text-slate-950" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-          </svg>
-        )}
-      </button>
-
-      {/* Nazwa i ilość */}
-      <div className="flex-1 min-w-0">
-        <span
-          className={`
-            text-sm relative
-            ${item.is_bought ? 'text-slate-500 line-through' : 'text-slate-200'}
-          `}
-        >
-          {item.name}
-        </span>
-        {item.quantity && (
-          <span className="ml-2 text-xs text-slate-600 font-mono">
-            {item.quantity}
-          </span>
-        )}
-        {item.note && (
-          <p className="text-xs text-slate-600 mt-0.5 truncate">{item.note}</p>
-        )}
+    <div className={`animate-fade-in px-3 py-2 rounded-xl border shadow-sm flex items-center justify-between group transition-colors duration-200
+      ${isBought ? 'bg-surface-container/30 border-gray-100 opacity-60' : 'bg-surface-container-lowest border-gray-200 hover:border-primary'}
+    `}>
+      <div className="flex items-center gap-3 min-w-0">
+        <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-xl flex-shrink-0
+          ${isBought ? 'bg-surface-container-high/50 grayscale' : 'bg-surface-container-high'}
+        `}>
+          {cat?.emoji || '🛒'}
+        </div>
+        <div className="min-w-0 flex flex-col justify-center">
+          <div className="flex items-center gap-2 flex-wrap">
+            <h4 className={`font-body-lg text-[15px] font-bold truncate ${isBought ? 'line-through text-on-surface-variant' : 'text-on-surface'}`}>
+              {item.name}
+            </h4>
+            {!isBought && cat && (
+              <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider" style={{ backgroundColor: `${cat.color}1A`, color: cat.color }}>
+                {cat.name}
+              </span>
+            )}
+          </div>
+          {(item.quantity || item.note) && (
+            <div className="flex items-center gap-2 flex-wrap">
+              {item.quantity && (
+                <span className="text-text-secondary text-[11px] font-code-sm">{item.quantity}</span>
+              )}
+              {item.note && (
+                <span className="text-text-secondary text-[11px] truncate max-w-[120px]">{item.note}</span>
+              )}
+            </div>
+          )}
+        </div>
       </div>
-
-      {/* Usuń — pojawia się na hover */}
-      <button
-        onClick={() => onDelete(item.id)}
-        className={`
-          flex-shrink-0 w-6 h-6 rounded-lg flex items-center justify-center
-          text-slate-700 hover:text-red-400 hover:bg-red-400/10
-          transition-all duration-150
-          opacity-0 group-hover:opacity-100
-        `}
-        aria-label="Usuń produkt"
-      >
-        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-        </svg>
-      </button>
+      
+      <div className="flex items-center gap-1 flex-shrink-0">
+        <button
+          onClick={() => onDelete(item.id)}
+          className="w-10 h-10 rounded-full flex items-center justify-center text-error hover:bg-error/10 active:scale-90 transition-all opacity-0 group-hover:opacity-100 md:opacity-0 md:group-hover:opacity-100"
+          aria-label="Usuń produkt"
+        >
+          <span className="material-symbols-outlined text-[20px]" data-icon="delete">delete</span>
+        </button>
+        <button
+          onClick={() => onToggle(item.id)}
+          className={`w-10 h-10 rounded-full flex items-center justify-center active:scale-90 transition-all
+            ${isBought ? 'text-primary' : 'text-on-surface-variant hover:bg-primary-container/10'}
+          `}
+          aria-label={isBought ? 'Oznacz jako niekupione' : 'Oznacz jako kupione'}
+        >
+          <span className="material-symbols-outlined" style={isBought ? { fontVariationSettings: "'FILL' 1" } : {}}>check_circle</span>
+        </button>
+      </div>
     </div>
   )
 }

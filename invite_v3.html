@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+
+<html lang="pl"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+                  "surface-container-lowest": "#ffffff",
+                  "secondary-fixed-dim": "#bacac3",
+                  "primary-container": "#10b981",
+                  "on-primary": "#ffffff",
+                  "text-primary": "#1f2937",
+                  "surface-tint": "#006c49",
+                  "tertiary-fixed": "#ffdad7",
+                  "surface-bg": "#f9fafb",
+                  "surface-bright": "#f4fbf4",
+                  "surface-container": "#e8f0e9",
+                  "inverse-on-surface": "#ebf3eb",
+                  "surface-container-high": "#e3eae3",
+                  "on-surface": "#161d19",
+                  "text-secondary": "#6b7280",
+                  "on-primary-fixed": "#002113",
+                  "on-secondary-fixed-variant": "#3b4a44",
+                  "tertiary-container": "#fc7c78",
+                  "category-meat": "#ef4444",
+                  "secondary-container": "#d3e3dc",
+                  "on-tertiary-container": "#711419",
+                  "error": "#ba1a1a",
+                  "on-tertiary-fixed-variant": "#842225",
+                  "tertiary-fixed-dim": "#ffb3af",
+                  "on-primary-fixed-variant": "#005236",
+                  "on-primary-container": "#00422b",
+                  "category-dairy": "#3b82f6",
+                  "on-secondary-fixed": "#101e1a",
+                  "primary": "#006c49",
+                  "surface-container-low": "#eef6ee",
+                  "secondary-fixed": "#d5e6df",
+                  "background": "#f4fbf4",
+                  "on-background": "#161d19",
+                  "category-produce": "#22c55e",
+                  "on-secondary-container": "#566660",
+                  "tertiary": "#a43a3a",
+                  "secondary": "#52625c",
+                  "inverse-surface": "#2b322d",
+                  "surface-container-highest": "#dde4dd",
+                  "on-error": "#ffffff",
+                  "outline": "#6c7a71",
+                  "surface-variant": "#dde4dd",
+                  "on-tertiary-fixed": "#410005",
+                  "on-surface-variant": "#3c4a42",
+                  "primary-fixed": "#6ffbbe",
+                  "on-error-container": "#93000a",
+                  "inverse-primary": "#4edea3",
+                  "outline-variant": "#bbcabf",
+                  "surface-dim": "#d4dcd5",
+                  "primary-fixed-dim": "#4edea3",
+                  "on-secondary": "#ffffff",
+                  "surface": "#f4fbf4",
+                  "on-tertiary": "#ffffff",
+                  "border-subtle": "#e5e7eb",
+                  "error-container": "#ffdad6"
+          },
+          "borderRadius": {
+                  "DEFAULT": "0.25rem",
+                  "lg": "0.5rem",
+                  "xl": "0.75rem",
+                  "full": "9999px"
+          },
+          "spacing": {
+                  "margin-mobile": "1rem",
+                  "stack-md": "1rem",
+                  "gutter": "1rem",
+                  "stack-sm": "0.5rem",
+                  "stack-lg": "1.5rem"
+          },
+          "fontFamily": {
+                  "label-sm": ["DM Sans"],
+                  "headline-md": ["DM Sans"],
+                  "body-md": ["DM Sans"],
+                  "body-lg": ["DM Sans"],
+                  "code-sm": ["DM Mono"],
+                  "headline-lg": ["DM Sans"]
+          },
+          "fontSize": {
+                  "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                  "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                  "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                  "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "500"}],
+                  "code-sm": ["12px", {"lineHeight": "16px", "fontWeight": "400"}],
+                  "headline-lg": ["24px", {"lineHeight": "32px", "fontWeight": "600"}]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .fade-in-up {
+      animation: fadeInUp 0.6s ease-out forwards;
+    }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface-bg font-body-md text-text-primary min-h-screen flex flex-col items-center justify-center">
+<main class="w-full max-w-[400px] px-margin-mobile flex flex-col items-center text-center fade-in-up">
+<!-- Hero Icon/Illustration -->
+<div class="mb-stack-lg p-6 bg-white rounded-full shadow-sm">
+<span class="material-symbols-outlined text-[48px] text-primary" style="font-variation-settings: 'FILL' 1;">
+        house
+      </span>
+</div>
+<!-- Social Proof Section -->
+<div class="flex flex-col items-center space-y-4 mb-stack-lg">
+<!-- Avatar Stack -->
+<div class="flex -space-x-3 items-center">
+<div class="w-12 h-12 rounded-full border-2 border-white overflow-hidden shadow-sm">
+<img alt="Profile 1" class="w-full h-full object-cover" data-alt="A close-up professional headshot of a friendly woman with a warm smile, set against a soft-focus interior background. The lighting is bright and natural, reflecting a clean and modern corporate aesthetic. The color palette is composed of soft whites and emerald green accents, maintaining a high-quality, approachable brand feel." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDYeVdNzpkDBWPWcjFkKkwOikhnv6uESGD5IoptK5pvUXSCp_OrbWSQTqgdVIno1hYfzuKhbaSq9F7ngNaptiJ97Hh7YPZVVT0uZzQwM4ucORaqDMtJqRXkSluk84Mr5Sl5P1OU6wrescg97NZIZNxI8COnWMM9gr-ENFaTbsyTYo3J1OBj4l4vtDffcVT1Le35MARMjtmaKK7v0dtfPKDtsQk8zQk-HA4BvjAj9-x4yIdOnKHX7awgZ9zQNYmUwGrNfA5-7J3D9DFr"/>
+</div>
+<div class="w-12 h-12 rounded-full border-2 border-white overflow-hidden shadow-sm">
+<img alt="Profile 2" class="w-full h-full object-cover" data-alt="A high-quality portrait of a cheerful man in a minimalist setting, lit with soft, flattering daylight. The image is crisp and professional, using a bright, airy aesthetic consistent with a modern mobile app's visual language. Emerald green and clean white tones dominate the composition, conveying a sense of community and organization." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAAmm-50zQXbOqrN3Slg4_HskXsUvQibn-oXXruMiMTkrqGi3zTn6DgkiLkeejoT9C0XbC_GutGQFaRnw0_dxZCg8buxbXGtGBqDIfOPusaA1Me1WTWdI4gjXE3gSRHtR83jQz6-gi-yhZGFZrdfcWyD9bt3NF8HJuPxRFm5_GJKKLumPSfk3yzEt2lHsh48BZEvJF4ndvWnf1-kJsY663jeKPK6Kmx_tAb1KTL-EltRGRqQA9_Om4ZSFgmvQ7Q5DVileCGcfFygpCo"/>
+</div>
+<div class="w-12 h-12 rounded-full border-2 border-white overflow-hidden shadow-sm">
+<img alt="Profile 3" class="w-full h-full object-cover" data-alt="A portrait of a young professional with an authentic expression, captured in a bright and minimalist environment. The lighting is soft and high-key, emphasizing a clean and approachable atmosphere. The overall style is modern and consumer-oriented, with a color palette emphasizing fresh emerald green and pure white for a cohesive UI experience." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDuLDXp8CQ6bIqm15YuKviYyaK9zFATQOEtSxbb5jaVpAu2ZIpFaKJYohQdMQr9xK2c2OJnNOQZJGH1ZH4w3zi0EQvcHwnOdlRlHO5ZFfTVcG07g_ZhpHTlegWLfJr8Wf_m_7D48ANv9_yFjUODOl9HPIMuDFmFBDrvwrIw7BbmHlXjCjEEOY8m0cfWY4Rm6mzhLVFsN62DjFSoFHYBbhCNEcg7oOGp2Q1e_CykRsV-Ibd0qdMiCMKcsGsaqMM5zkvg5YBGbE8EHnZm"/>
+</div>
+</div>
+<!-- Headline Text -->
+<div class="space-y-2 px-4">
+<h1 class="font-headline-lg text-headline-lg text-text-primary tracking-tight">
+          3 osoby już tu są!
+        </h1>
+<p class="font-body-lg text-body-lg text-text-secondary">
+          Dołącz do nich w domu <span class="font-bold text-text-primary">Domowe</span>
+</p>
+</div>
+</div>
+<!-- Quick Action Button -->
+<button class="group w-full py-4 bg-primary text-on-primary rounded-xl font-headline-md text-headline-md flex items-center justify-center gap-3 shadow-md active:scale-95 transition-all duration-200 hover:shadow-lg">
+<span>Wchodzę!</span>
+<span class="material-symbols-outlined transition-transform group-hover:translate-x-1" style="font-variation-settings: 'wght' 600;">
+        arrow_forward
+      </span>
+</button>
+<!-- Simple Footer (Hidden metadata for minimalist feel) -->
+<p class="mt-stack-lg font-label-sm text-label-sm text-text-secondary opacity-60">
+      Zaproszenie od: Anna Nowak
+    </p>
+</main>
+<!-- Interactive Sparkles Effect (Vanilla JS) -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const button = document.querySelector('button');
+      
+      button.addEventListener('mouseenter', () => {
+        // Soft haptic feedback simulation
+        if (window.navigator.vibrate) {
+          window.navigator.vibrate(5);
+        }
+      });
+
+      // Simple animation for the house icon to pulse gently
+      const houseIcon = document.querySelector('.material-symbols-outlined');
+      setInterval(() => {
+        houseIcon.style.transform = 'scale(1.05)';
+        setTimeout(() => {
+          houseIcon.style.transform = 'scale(1)';
+        }, 1000);
+      }, 3000);
+    });
+  </script>
+</body></html>
