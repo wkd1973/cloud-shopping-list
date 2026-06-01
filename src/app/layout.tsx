@@ -7,10 +7,22 @@ const dmMono = DM_Mono({ subsets: ['latin'], weight: ['400', '500'], variable: '
 
 export const metadata: Metadata = {
   title: 'Zakupy',
-  description: 'Lista zakupów dla domowników',
+  description: 'Lista zakupów w chmurze dla domowników',
+  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'Zakupy',
+  },
 }
 
-export const viewport = { themeColor: '#ffffff' }
+export const viewport = { 
+  themeColor: '#ffffff',
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+}
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

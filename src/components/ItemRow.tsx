@@ -65,7 +65,7 @@ export default function ItemRow({ item, onToggle, onDelete, onEdit, isHighlighte
       <div className="flex items-center gap-1 flex-shrink-0">
         <button
           onClick={() => onDelete(item.id)}
-          className="w-10 h-10 rounded-full flex items-center justify-center text-error hover:bg-error/10 active:scale-90 transition-all opacity-0 group-hover:opacity-100 md:opacity-0 md:group-hover:opacity-100"
+          className="w-10 h-10 rounded-full flex items-center justify-center text-error hover:bg-error/10 active:scale-90 transition-all opacity-100 md:opacity-0 md:group-hover:opacity-100"
           aria-label="Usuń produkt"
         >
           <span className="material-symbols-outlined text-[20px]" data-icon="delete">delete</span>

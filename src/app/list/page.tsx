@@ -32,11 +32,13 @@ export default async function ListsPage(props: Props) {
     )
   }
 
-  // Find the selected membership or default to the first one
+  // Znajdź wybrane domostwo (z URL) lub ustaw domyślne (priorytet dla roli 'admin')
   const selectedHouseholdId = searchParams.householdId
+  const defaultMembership = memberships.find(m => m.role === 'admin') ?? memberships[0]
+  
   const activeMembership = selectedHouseholdId 
-    ? memberships.find(m => m.household_id === selectedHouseholdId) ?? memberships[0]
-    : memberships[0]
+    ? memberships.find(m => m.household_id === selectedHouseholdId) ?? defaultMembership
+    : defaultMembership
 
   const householdId = activeMembership.household_id
   const household   = activeMembership.households as unknown as { id: string; name: string }
