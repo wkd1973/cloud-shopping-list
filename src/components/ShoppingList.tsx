@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useOptimistic, useState, useTransition } from 'react'
+import { useEffect, useOptimistic, useState, useTransition, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import type { Category, Item, FrequentItem } from '@/lib/types'
@@ -73,7 +73,14 @@ export default function ShoppingList({ initialItems, categories, frequentItems, 
     );
 
     if (existingItem) {
-      setHighlightedItemId(existingItem.id);
+      if (existingItem.is_bought && !showBought) {
+        setShowBought(true);
+      }
+      // Small delay to allow the DOM to render if showBought was just flipped to true
+      setTimeout(() => {
+        setHighlightedItemId(existingItem.id);
+      }, 50);
+      
       setTimeout(() => setHighlightedItemId(null), 1500);
       return;
     }
@@ -142,12 +149,28 @@ export default function ShoppingList({ initialItems, categories, frequentItems, 
   }, {})
   const uncategorized = activeItems.filter(i => !i.category_id).sort((a, b) => a.name.localeCompare(b.name))
 
+  // Dynamiczne połączenie historii zakupów z aktualnymi produktami na liście
+  // dzięki temu nowo dodane produkty od razu pojawią się w podpowiedziach
+  const combinedSuggestions = useMemo(() => {
+    const map = new Map<string, FrequentItem>()
+    for (const fi of frequentItems) {
+      map.set(fi.name.toLowerCase(), fi)
+    }
+    for (const i of items) {
+      const key = i.name.toLowerCase()
+      if (!map.has(key) && i.name.trim() !== '') {
+        map.set(key, { name: i.name.trim(), category_id: i.category_id, frequency: 1 })
+      }
+    }
+    return Array.from(map.values()).sort((a, b) => b.frequency - a.frequency)
+  }, [frequentItems, items])
+
   return (
     <div className="bg-background min-h-screen text-on-background font-body-md text-body-md mb-24 overflow-x-hidden">
       {/* Top Navigation Anchor */}
       <header className="bg-surface docked full-width top-0 shadow-sm z-40 sticky">
         <div className="flex items-center justify-between px-margin-mobile w-full max-w-screen-sm mx-auto h-16">
-          <button onClick={() => router.push('/list')} className="active:scale-95 transition-transform duration-200 text-primary">
+          <button onClick={() => router.push(`/list?householdId=${householdId}`)} className="active:scale-95 transition-transform duration-200 text-primary">
             <span className="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
           </button>
           <h1 className="font-headline-lg text-[24px] font-bold text-primary truncate px-4 flex items-center gap-2">
@@ -197,7 +220,7 @@ export default function ShoppingList({ initialItems, categories, frequentItems, 
 
         {/* Add Item form */}
         <div className="mb-8">
-          <AddItemForm categories={categories} frequentItems={frequentItems} defaultCategoryId={filterCategory} onAdd={addItem} />
+          <AddItemForm categories={categories} frequentItems={combinedSuggestions} defaultCategoryId={filterCategory} onAdd={addItem} />
         </div>
 
         {/* Items Content */}

@@ -70,8 +70,9 @@ Aplikacja zbudowana jest z czterech głównych widoków dostępnych dla użytkow
     - Pozycje pogrupowane są na elementy do kupienia (u góry) i już kupione (przekreślone na dole, wyszarzone).
     - Każdy rząd to kółko do zaznaczania (z kolorową obwódką zależną od kategorii) oraz nazwa produktu z notatką.
   - **Pasek dodawania (`AddItemForm.tsx`):** Przyklejony na stałe do samego dołu ekranu obszar roboczy.
-    - Zawiera input tekstowy reagujący na wpisywanie **pływającą listą (dropdown) podpowiedzi** najczęściej używanych produktów.
+    - Zawiera input tekstowy reagujący na wpisywanie **pływającą listą (dropdown) podpowiedzi**. Pula podpowiedzi jest dynamicznie generowana poprzez połączenie historycznych zakupów (z serwera) i bieżących przedmiotów na liście (wspiera natychmiastowe podpowiadanie nowo dodanych rzeczy).
     - Zapobiega dodawaniu duplikatów – jeśli dodasz produkt będący na liście, operacja zostanie zignorowana, a istniejący wiersz wyróżni się **krótką animacją pulsowania (migotania)** i zmianą tła.
+    - W przypadku duplikatów aplikacja automatycznie przeskroluje ekran do wybranego produktu, a jeśli produkt ten znajduje się w zwiniętej sekcji kupionych – najpierw ją automatycznie rozwinie.
     - Po rozwinięciu formularza ujawnia wybór kategorii (kolorowe pigułki) i opcjonalne pole na ilość (np. 2kg).
 
 ### D. Ekran Akceptacji Zaproszenia (`/invite/[token]`)

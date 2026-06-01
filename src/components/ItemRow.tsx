@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useRef } from 'react'
 import type { Item } from '@/lib/types'
 
 interface Props {
@@ -12,9 +13,16 @@ interface Props {
 export default function ItemRow({ item, onToggle, onDelete, isHighlighted }: Props) {
   const isBought = item.is_bought
   const cat = item.category
+  const rowRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (isHighlighted && rowRef.current) {
+      rowRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }
+  }, [isHighlighted])
   
   return (
-    <div className={`px-3 py-2 rounded-xl border shadow-sm flex items-center justify-between group transition-all duration-300
+    <div ref={rowRef} className={`px-3 py-2 rounded-xl border shadow-sm flex items-center justify-between group transition-all duration-300
       ${isHighlighted ? 'animate-pulse bg-primary/10 border-primary scale-[1.02]' : ''}
       ${!isHighlighted && isBought ? 'bg-surface-container/30 border-gray-100 opacity-60' : ''}
       ${!isHighlighted && !isBought ? 'bg-surface-container-lowest border-gray-200 hover:border-primary' : ''}
