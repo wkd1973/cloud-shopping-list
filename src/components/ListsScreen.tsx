@@ -113,23 +113,37 @@ export default function ListsScreen({ lists: initialLists, householdId, househol
             {showMenu && (
               <>
                 <div className="fixed inset-0 z-20" onClick={() => setShowMenu(false)} />
-                <div className="absolute right-0 top-10 z-30 w-48 rounded-xl border border-gray-200 bg-white shadow-lg overflow-hidden">
-                  <div className="px-3 py-2 border-b border-gray-100">
+                <div className="absolute right-0 top-10 z-30 w-52 rounded-xl border border-gray-200 bg-white shadow-lg py-1 overflow-hidden">
+                  <div className="px-3 py-2">
                     <p className="text-xs text-gray-400 truncate">{userEmail}</p>
                   </div>
-                  <button onClick={() => { setShowMenu(false); setShowMembers(true); }} className="w-full text-left px-3 py-2.5 text-sm text-gray-600 hover:bg-gray-50 transition-colors border-b border-gray-100">
+                  
+                  <div className="h-px bg-gray-100 my-1" />
+                  
+                  <button onClick={() => { setShowMenu(false); setShowMembers(true); }} className="w-full text-left px-3 py-2 text-[14px] text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2">
+                    <span className="material-symbols-outlined text-[18px]">group</span>
                     Członkowie domostwa
                   </button>
-                  <button onClick={() => { setShowMenu(false); router.push('/help'); }} className="w-full text-left px-3 py-2.5 text-sm text-gray-600 hover:bg-gray-50 transition-colors border-b border-gray-100">
+                  
+                  <div className="h-px bg-gray-100 my-1" />
+
+                  <button onClick={() => { setShowMenu(false); router.push('/help'); }} className="w-full text-left px-3 py-2 text-[14px] text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2">
+                    <span className="material-symbols-outlined text-[18px]">help</span>
                     Pomoc i informacje
                   </button>
-                  <button onClick={() => { setShowMenu(false); router.push('/terms'); }} className="w-full text-left px-3 py-2.5 text-sm text-gray-600 hover:bg-gray-50 transition-colors border-b border-gray-100">
+                  <button onClick={() => { setShowMenu(false); router.push('/terms'); }} className="w-full text-left px-3 py-2 text-[14px] text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2">
+                    <span className="material-symbols-outlined text-[18px]">gavel</span>
                     Regulamin
                   </button>
-                  <button onClick={() => { setShowMenu(false); router.push('/privacy'); }} className="w-full text-left px-3 py-2.5 text-sm text-gray-600 hover:bg-gray-50 transition-colors border-b border-gray-100">
+                  <button onClick={() => { setShowMenu(false); router.push('/privacy'); }} className="w-full text-left px-3 py-2 text-[14px] text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2">
+                    <span className="material-symbols-outlined text-[18px]">policy</span>
                     Polityka Prywatności
                   </button>
-                  <button onClick={signOut} className="w-full text-left px-3 py-2.5 text-sm text-gray-600 hover:bg-gray-50 transition-colors">
+                  
+                  <div className="h-px bg-gray-100 my-1" />
+
+                  <button onClick={signOut} className="w-full text-left px-3 py-2 text-[14px] text-red-600 hover:bg-red-50 transition-colors flex items-center gap-2">
+                    <span className="material-symbols-outlined text-[18px]">logout</span>
                     Wyloguj się
                   </button>
                 </div>

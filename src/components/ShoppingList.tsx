@@ -345,31 +345,40 @@ export default function ShoppingList({ initialItems, categories, frequentItems, 
             {showMenu && (
               <>
                 <div className="fixed inset-0 z-20" onClick={() => setShowMenu(false)} />
-                <div className="absolute right-0 top-10 z-30 w-48 rounded-xl border border-border-subtle bg-surface-container-lowest shadow-lg overflow-hidden">
-                  <div className="px-3 py-2 border-b border-surface-container">
+                <div className="absolute right-0 top-10 z-30 w-56 rounded-xl border border-border-subtle bg-surface-container-lowest shadow-lg py-1 overflow-hidden">
+                  <div className="px-3 py-2">
                     <p className="text-[12px] text-on-surface-variant truncate">{userEmail}</p>
                   </div>
-                  <button onClick={() => { setShowMenu(false); setShowMembers(true); }} className="w-full text-left px-3 py-2.5 text-[14px] text-on-surface hover:bg-surface-container-low transition-colors border-b border-surface-container flex items-center gap-2">
+                  
+                  <div className="h-px bg-surface-container my-1" />
+                  
+                  <button onClick={() => { setShowMenu(false); setShowMembers(true); }} className="w-full text-left px-3 py-2 text-[14px] text-on-surface hover:bg-surface-container-low transition-colors flex items-center gap-2">
                     <span className="material-symbols-outlined text-[18px]">group</span>
                     Członkowie domostwa
                   </button>
-                  <button onClick={() => { setShowMenu(false); setShowPresetsManager(true); }} className="w-full text-left px-3 py-2.5 text-[14px] text-on-surface hover:bg-surface-container-low transition-colors border-b border-surface-container flex items-center gap-2">
+                  <button onClick={() => { setShowMenu(false); setShowPresetsManager(true); }} className="w-full text-left px-3 py-2 text-[14px] text-on-surface hover:bg-surface-container-low transition-colors flex items-center gap-2">
                     <span className="material-symbols-outlined text-[18px]">edit_square</span>
                     Zarządzaj szablonami
                   </button>
-                  <button onClick={() => { setShowMenu(false); router.push('/help'); }} className="w-full text-left px-3 py-2.5 text-[14px] text-on-surface hover:bg-surface-container-low transition-colors border-b border-surface-container flex items-center gap-2">
+
+                  <div className="h-px bg-surface-container my-1" />
+
+                  <button onClick={() => { setShowMenu(false); router.push('/help'); }} className="w-full text-left px-3 py-2 text-[14px] text-on-surface hover:bg-surface-container-low transition-colors flex items-center gap-2">
                     <span className="material-symbols-outlined text-[18px]">help</span>
                     Pomoc i informacje
                   </button>
-                  <button onClick={() => { setShowMenu(false); router.push('/terms'); }} className="w-full text-left px-3 py-2.5 text-[14px] text-on-surface hover:bg-surface-container-low transition-colors border-b border-surface-container flex items-center gap-2">
+                  <button onClick={() => { setShowMenu(false); router.push('/terms'); }} className="w-full text-left px-3 py-2 text-[14px] text-on-surface hover:bg-surface-container-low transition-colors flex items-center gap-2">
                     <span className="material-symbols-outlined text-[18px]">gavel</span>
                     Regulamin
                   </button>
-                  <button onClick={() => { setShowMenu(false); router.push('/privacy'); }} className="w-full text-left px-3 py-2.5 text-[14px] text-on-surface hover:bg-surface-container-low transition-colors border-b border-surface-container flex items-center gap-2">
+                  <button onClick={() => { setShowMenu(false); router.push('/privacy'); }} className="w-full text-left px-3 py-2 text-[14px] text-on-surface hover:bg-surface-container-low transition-colors flex items-center gap-2">
                     <span className="material-symbols-outlined text-[18px]">policy</span>
                     Polityka Prywatności
                   </button>
-                  <button onClick={signOut} className="w-full text-left px-3 py-2.5 text-[14px] text-error hover:bg-error-container/20 transition-colors flex items-center gap-2">
+
+                  <div className="h-px bg-surface-container my-1" />
+
+                  <button onClick={signOut} className="w-full text-left px-3 py-2 text-[14px] text-error hover:bg-error-container/20 transition-colors flex items-center gap-2">
                     <span className="material-symbols-outlined text-[18px]">logout</span>
                     Wyloguj się
                   </button>
