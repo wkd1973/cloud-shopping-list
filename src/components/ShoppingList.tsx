@@ -361,6 +361,14 @@ export default function ShoppingList({ initialItems, categories, frequentItems, 
                     <span className="material-symbols-outlined text-[18px]">help</span>
                     Pomoc i informacje
                   </button>
+                  <button onClick={() => { setShowMenu(false); router.push('/terms'); }} className="w-full text-left px-3 py-2.5 text-[14px] text-on-surface hover:bg-surface-container-low transition-colors border-b border-surface-container flex items-center gap-2">
+                    <span className="material-symbols-outlined text-[18px]">gavel</span>
+                    Regulamin
+                  </button>
+                  <button onClick={() => { setShowMenu(false); router.push('/privacy'); }} className="w-full text-left px-3 py-2.5 text-[14px] text-on-surface hover:bg-surface-container-low transition-colors border-b border-surface-container flex items-center gap-2">
+                    <span className="material-symbols-outlined text-[18px]">policy</span>
+                    Polityka Prywatności
+                  </button>
                   <button onClick={signOut} className="w-full text-left px-3 py-2.5 text-[14px] text-error hover:bg-error-container/20 transition-colors flex items-center gap-2">
                     <span className="material-symbols-outlined text-[18px]">logout</span>
                     Wyloguj się
