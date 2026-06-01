@@ -24,6 +24,8 @@ export const viewport = {
   userScalable: false,
 }
 
+import CookieConsent from '@/components/CookieConsent'
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="pl" className={`${dmSans.variable} ${dmMono.variable}`}>
@@ -32,6 +34,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="bg-gray-50 text-gray-900 antialiased min-h-screen">
         {children}
+        <CookieConsent />
       </body>
     </html>
   )
