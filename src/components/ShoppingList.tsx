@@ -10,6 +10,7 @@ import AddItemForm from './AddItemForm'
 import CategoryFilter from './CategoryFilter'
 import MembersModal from './MembersModal'
 import PresetsCarousel from './PresetsCarousel'
+import PresetsManagerModal from './PresetsManagerModal'
 import type { Preset } from '@/lib/types'
 
 interface Props {
@@ -35,6 +36,7 @@ export default function ShoppingList({ initialItems, categories, frequentItems, 
   const [sortBy, setSortBy]                 = useState<'name' | 'category'>('name')
   const [showMenu, setShowMenu]             = useState(false)
   const [showMembers, setShowMembers]       = useState(false)
+  const [showPresetsManager, setShowPresetsManager] = useState(false)
   const [highlightedItemId, setHighlightedItemId] = useState<string | null>(null)
   const [selectedItemForEdit, setSelectedItemForEdit] = useState<Item | null>(null)
   
@@ -347,10 +349,16 @@ export default function ShoppingList({ initialItems, categories, frequentItems, 
                   <div className="px-3 py-2 border-b border-surface-container">
                     <p className="text-[12px] text-on-surface-variant truncate">{userEmail}</p>
                   </div>
-                  <button onClick={() => { setShowMenu(false); setShowMembers(true); }} className="w-full text-left px-3 py-2.5 text-[14px] text-on-surface hover:bg-surface-container-low transition-colors border-b border-surface-container">
+                  <button onClick={() => { setShowMenu(false); setShowMembers(true); }} className="w-full text-left px-3 py-2.5 text-[14px] text-on-surface hover:bg-surface-container-low transition-colors border-b border-surface-container flex items-center gap-2">
+                    <span className="material-symbols-outlined text-[18px]">group</span>
                     Członkowie domostwa
                   </button>
-                  <button onClick={signOut} className="w-full text-left px-3 py-2.5 text-[14px] text-error hover:bg-error-container/20 transition-colors">
+                  <button onClick={() => { setShowMenu(false); setShowPresetsManager(true); }} className="w-full text-left px-3 py-2.5 text-[14px] text-on-surface hover:bg-surface-container-low transition-colors border-b border-surface-container flex items-center gap-2">
+                    <span className="material-symbols-outlined text-[18px]">edit_square</span>
+                    Zarządzaj szablonami
+                  </button>
+                  <button onClick={signOut} className="w-full text-left px-3 py-2.5 text-[14px] text-error hover:bg-error-container/20 transition-colors flex items-center gap-2">
+                    <span className="material-symbols-outlined text-[18px]">logout</span>
                     Wyloguj się
                   </button>
                 </div>
@@ -518,6 +526,13 @@ export default function ShoppingList({ initialItems, categories, frequentItems, 
       </main>
 
       {showMembers && <MembersModal householdId={householdId} onClose={() => setShowMembers(false)} />}
+      {showPresetsManager && (
+        <PresetsManagerModal 
+          presets={presets} 
+          onClose={() => setShowPresetsManager(false)} 
+          onPresetsUpdated={setPresets} 
+        />
+      )}
     </div>
   )
 }
