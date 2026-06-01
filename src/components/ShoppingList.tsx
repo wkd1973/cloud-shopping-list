@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import type { Category, Item, FrequentItem } from '@/lib/types'
 import ItemRow from './ItemRow'
+import UndoItemRow from './UndoItemRow'
 import AddItemForm from './AddItemForm'
 import CategoryFilter from './CategoryFilter'
 import MembersModal from './MembersModal'
@@ -32,11 +33,15 @@ export default function ShoppingList({ initialItems, categories, frequentItems, 
   const [presets, setPresets]               = useState<Preset[]>(initialPresets)
   const [filterCategory, setFilterCategory] = useState<string | null>(null)
   const [sortBy, setSortBy]                 = useState<'name' | 'category'>('name')
-  const [showBought, setShowBought]         = useState(false)
   const [showMenu, setShowMenu]             = useState(false)
   const [showMembers, setShowMembers]       = useState(false)
   const [highlightedItemId, setHighlightedItemId] = useState<string | null>(null)
   const [selectedItemForEdit, setSelectedItemForEdit] = useState<Item | null>(null)
+  
+  // Nowe stany dla zakładek i historii usuniętych
+  const [activeTab, setActiveTab] = useState<'lista' | 'kupione' | 'undo'>('lista')
+  const [undoList, setUndoList]   = useState<Item[]>([])
+
   const [, startTransition]                 = useTransition()
 
   const [optimisticItems, addOptimistic] = useOptimistic(
@@ -78,21 +83,25 @@ export default function ShoppingList({ initialItems, categories, frequentItems, 
     );
 
     if (existingItem) {
-      if (existingItem.is_bought && !showBought) {
-        setShowBought(true);
+      if (existingItem.is_bought) {
+        // Zmiana zachowania: po prostu przeskocz na listę i ewentualnie przejdź do kupionych,
+        // albo odznacz jako niekupione jeśli dodajemy ponownie
+        startTransition(() => { addOptimistic({ type: 'toggle', id: existingItem.id }) })
+        await supabase.from('items').update({ is_bought: false, quantity: quantity || null, category_id: categoryId }).eq('id', existingItem.id);
+        setActiveTab('lista');
+      } else {
+        const quantityChanged = (existingItem.quantity || '') !== (quantity || '');
+        const categoryChanged = existingItem.category_id !== categoryId;
+        
+        if (quantityChanged || categoryChanged) {
+          startTransition(() => {
+            setItems(prev => prev.map(i => i.id === existingItem.id ? { ...i, quantity: quantity || null, category_id: categoryId } : i));
+          });
+          await supabase.from('items').update({ quantity: quantity || null, category_id: categoryId }).eq('id', existingItem.id);
+        }
+        setActiveTab('lista');
       }
 
-      const quantityChanged = (existingItem.quantity || '') !== (quantity || '');
-      const categoryChanged = existingItem.category_id !== categoryId;
-      
-      if (quantityChanged || categoryChanged) {
-        startTransition(() => {
-          setItems(prev => prev.map(i => i.id === existingItem.id ? { ...i, quantity: quantity || null, category_id: categoryId } : i));
-        });
-        await supabase.from('items').update({ quantity: quantity || null, category_id: categoryId }).eq('id', existingItem.id);
-      }
-
-      // Small delay to allow the DOM to render if showBought was just flipped to true
       setTimeout(() => {
         setHighlightedItemId(existingItem.id);
       }, 50);
@@ -110,6 +119,7 @@ export default function ShoppingList({ initialItems, categories, frequentItems, 
       category: categories.find(c => c.id === categoryId) ?? null,
     }
     startTransition(() => { addOptimistic({ type: 'add', item: optimisticItem }) })
+    setActiveTab('lista')
 
     const { data: newItem, error } = await supabase
       .from('items')
@@ -125,7 +135,6 @@ export default function ShoppingList({ initialItems, categories, frequentItems, 
   async function applyPreset(preset: Preset) {
     if (!preset.ingredients || preset.ingredients.length === 0) return;
 
-    // Pobierz wszystkie aktywne produkty by zapobiec duplikatom
     const existingNames = new Set(
       items.filter(i => i.archived_at === null).map(i => i.name.trim().toLowerCase())
     );
@@ -157,10 +166,10 @@ export default function ShoppingList({ initialItems, categories, frequentItems, 
       category: null,
     }));
 
-    // Optymistyczne dodanie
     optimisticNewItems.forEach(item => {
       startTransition(() => { addOptimistic({ type: 'add', item }) })
     });
+    setActiveTab('lista')
 
     const rowsToInsert = itemsToAdd.map(name => ({
       household_id: householdId,
@@ -180,8 +189,6 @@ export default function ShoppingList({ initialItems, categories, frequentItems, 
         const newOnes = insertedItems.filter(i => !existingIds.has(i.id)) as Item[];
         return [...newOnes, ...prev];
       });
-      // Opcjonalny toast (zamiast alertu), ale alert dla uproszczenia
-      // alert(`Dodano ${insertedItems.length} składników z szablonu "${preset.name}".`);
     }
   }
 
@@ -228,11 +235,61 @@ export default function ShoppingList({ initialItems, categories, frequentItems, 
 
   async function deleteItem(id: string) {
     const item = items.find(i => i.id === id)
+    if (item) {
+      setUndoList(prev => [item, ...prev.filter(u => u.id !== item.id)])
+    }
     startTransition(() => { addOptimistic({ type: 'delete', id }) })
     const { error } = await supabase.from('items').delete().eq('id', id)
     if (!error) {
       setItems(prev => prev.filter(i => i.id !== id))
     }
+  }
+
+  async function restoreItem(itemToRestore: Item) {
+    const existingItem = items.find(i => i.name.toLowerCase() === itemToRestore.name.toLowerCase() && i.archived_at === null);
+    
+    if (existingItem) {
+      // Jeśli już jest na liście, po prostu wyrzuć z historii cofania i odznacz jako kupione
+      setUndoList(prev => prev.filter(i => i.id !== itemToRestore.id));
+      if (existingItem.is_bought) {
+         toggleItem(existingItem.id)
+      }
+      return;
+    }
+
+    // Usunięcie z kosza i natychmiastowe wrzucenie z powrotem na listę (optymistycznie)
+    setUndoList(prev => prev.filter(i => i.id !== itemToRestore.id));
+    
+    startTransition(() => { addOptimistic({ type: 'add', item: itemToRestore }) })
+    setActiveTab(itemToRestore.is_bought ? 'kupione' : 'lista')
+
+    const { data: newItem, error } = await supabase
+      .from('items')
+      .insert({
+        household_id: itemToRestore.household_id,
+        list_id: itemToRestore.list_id,
+        category_id: itemToRestore.category_id,
+        name: itemToRestore.name,
+        quantity: itemToRestore.quantity,
+        note: itemToRestore.note,
+        added_by: itemToRestore.added_by,
+        is_bought: itemToRestore.is_bought,
+        bought_by: itemToRestore.bought_by,
+        bought_at: itemToRestore.bought_at
+      })
+      .select('*, category:categories(*)')
+      .single()
+
+    if (!error && newItem) {
+      setItems(prev => prev.some(i => i.id === newItem.id) ? prev : [newItem as Item, ...prev])
+    } else {
+      // Jeśli błąd, przywracamy do kosza
+      setUndoList(prev => [itemToRestore, ...prev])
+    }
+  }
+
+  function permanentDeleteUndo(id: string) {
+    setUndoList(prev => prev.filter(i => i.id !== id))
   }
 
   async function signOut() {
@@ -255,8 +312,6 @@ export default function ShoppingList({ initialItems, categories, frequentItems, 
   }, {})
   const uncategorized = activeItems.filter(i => !i.category_id).sort((a, b) => a.name.localeCompare(b.name))
 
-  // Dynamiczne połączenie historii zakupów z aktualnymi produktami na liście
-  // dzięki temu nowo dodane produkty od razu pojawią się w podpowiedziach
   const combinedSuggestions = useMemo(() => {
     const map = new Map<string, FrequentItem>()
     for (const fi of frequentItems) {
@@ -273,7 +328,6 @@ export default function ShoppingList({ initialItems, categories, frequentItems, 
 
   return (
     <div className="bg-background min-h-screen text-on-background font-body-md text-body-md mb-24 overflow-x-hidden">
-      {/* Top Navigation Anchor */}
       <header className="bg-surface docked full-width top-0 shadow-sm z-40 sticky">
         <div className="flex items-center justify-between px-margin-mobile w-full max-w-screen-sm mx-auto h-16">
           <button onClick={() => router.push(`/list?householdId=${householdId}`)} className="active:scale-95 transition-transform duration-200 text-primary">
@@ -312,107 +366,153 @@ export default function ShoppingList({ initialItems, categories, frequentItems, 
       </header>
 
       <main className="max-w-screen-sm mx-auto pt-4 px-margin-mobile">
-        {/* Integrated Header Gradient Section */}
-        <section className="mt-4 mb-8 p-6 rounded-3xl bg-gradient-to-br from-primary-container to-primary text-on-primary-container shadow-lg relative overflow-hidden">
+        <section className="mt-4 mb-6 p-6 rounded-3xl bg-gradient-to-br from-primary-container to-primary text-on-primary-container shadow-lg relative overflow-hidden">
           <div className="relative z-10">
             <h2 className="font-headline-md text-[20px] font-bold mb-1">Zrób zapasy!</h2>
-            <p className="font-body-md text-[14px] opacity-90">Masz {activeItems.length} produktów do kupienia.</p>
+            <p className="font-body-md text-[14px] opacity-90">Masz {optimisticItems.filter(i => !i.is_bought && i.archived_at === null).length} produktów do kupienia.</p>
           </div>
-          {/* Decorative circle */}
           <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
         </section>
 
-        <CategoryFilter categories={categories} activeCategory={filterCategory} onSelect={setFilterCategory} />
-
-        <PresetsCarousel 
-          presets={presets} 
-          onApplyPreset={applyPreset} 
-          onSaveAsPreset={saveAsPreset} 
-        />
-
-        {/* Add Item form */}
-        <div className="mb-8">
-          <AddItemForm 
-            categories={categories} 
-            frequentItems={combinedSuggestions} 
-            activeItems={activeItems}
-            selectedItemForEdit={selectedItemForEdit}
-            defaultCategoryId={filterCategory} 
-            onAdd={addItem} 
-          />
+        {/* Zakładki (Tabs) */}
+        <div className="flex bg-surface-container-low rounded-xl p-1 mb-6 shadow-sm">
+          <button 
+            onClick={() => setActiveTab('lista')} 
+            className={`flex-1 py-2 text-center rounded-lg text-[14px] font-bold transition-all ${activeTab === 'lista' ? 'bg-surface shadow-sm text-primary' : 'text-on-surface-variant hover:text-on-surface'}`}
+          >
+            Do kupienia
+          </button>
+          <button 
+            onClick={() => setActiveTab('kupione')} 
+            className={`flex-1 py-2 text-center rounded-lg text-[14px] font-bold transition-all ${activeTab === 'kupione' ? 'bg-surface shadow-sm text-primary' : 'text-on-surface-variant hover:text-on-surface'}`}
+          >
+            Kupione
+          </button>
+          <button 
+            onClick={() => setActiveTab('undo')} 
+            className={`flex-1 py-2 text-center rounded-lg text-[14px] font-bold transition-all relative ${activeTab === 'undo' ? 'bg-surface shadow-sm text-error' : 'text-on-surface-variant hover:text-on-surface'}`}
+          >
+            Kosz
+            {undoList.length > 0 && (
+              <span className="absolute top-1 right-2 w-2 h-2 bg-error rounded-full"></span>
+            )}
+          </button>
         </div>
 
-        {/* Items Content */}
-        <div className="flex justify-between items-center mb-4 px-1">
-          <h3 className="font-headline-md text-[20px] font-semibold text-on-surface">Twoje produkty</h3>
-          <div className="flex items-center gap-3">
-            <div className="flex bg-surface-container-low rounded-xl p-1">
-              <button onClick={() => setSortBy('name')} className={`px-3 py-1 rounded-lg text-[12px] font-bold transition-all ${sortBy === 'name' ? 'bg-surface shadow-sm text-on-surface' : 'text-on-surface-variant hover:text-on-surface'}`}>
-                A-Z
-              </button>
-              <button onClick={() => setSortBy('category')} className={`px-3 py-1 rounded-lg text-[12px] font-bold transition-all ${sortBy === 'category' ? 'bg-surface shadow-sm text-on-surface' : 'text-on-surface-variant hover:text-on-surface'}`}>
-                Kategorie
-              </button>
-            </div>
-            <span className="text-on-surface-variant font-label-sm text-[12px] flex items-center gap-1 hidden sm:flex">
-              {activeItems.length} do kupienia
-            </span>
-          </div>
-        </div>
+        {/* Wyświetlanie aktywnej zakładki */}
+        {activeTab === 'lista' && (
+          <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+            <CategoryFilter categories={categories} activeCategory={filterCategory} onSelect={setFilterCategory} />
 
-        <div className="grid grid-cols-1 gap-4">
-          {sortBy === 'name' ? (
-            <div className="space-y-4">
-              {sortedActiveItems.map(item => <ItemRow key={item.id} item={item} onToggle={toggleItem} onDelete={deleteItem} onEdit={() => setSelectedItemForEdit({ ...item })} isHighlighted={highlightedItemId === item.id} />)}
+            <PresetsCarousel 
+              presets={presets} 
+              onApplyPreset={applyPreset} 
+              onSaveAsPreset={saveAsPreset} 
+            />
+
+            <div className="mb-8">
+              <AddItemForm 
+                categories={categories} 
+                frequentItems={combinedSuggestions} 
+                activeItems={activeItems}
+                selectedItemForEdit={selectedItemForEdit}
+                defaultCategoryId={filterCategory} 
+                onAdd={addItem} 
+              />
             </div>
-          ) : (
-            <>
-              {uncategorized.length > 0 && (
-                <div className="space-y-4">
-                  {uncategorized.map(item => <ItemRow key={item.id} item={item} onToggle={toggleItem} onDelete={deleteItem} onEdit={() => setSelectedItemForEdit({ ...item })} isHighlighted={highlightedItemId === item.id} />)}
+
+            <div className="flex justify-between items-center mb-4 px-1">
+              <h3 className="font-headline-md text-[20px] font-semibold text-on-surface">Twoje produkty</h3>
+              <div className="flex items-center gap-3">
+                <div className="flex bg-surface-container-low rounded-xl p-1">
+                  <button onClick={() => setSortBy('name')} className={`px-3 py-1 rounded-lg text-[12px] font-bold transition-all ${sortBy === 'name' ? 'bg-surface shadow-sm text-on-surface' : 'text-on-surface-variant hover:text-on-surface'}`}>
+                    A-Z
+                  </button>
+                  <button onClick={() => setSortBy('category')} className={`px-3 py-1 rounded-lg text-[12px] font-bold transition-all ${sortBy === 'category' ? 'bg-surface shadow-sm text-on-surface' : 'text-on-surface-variant hover:text-on-surface'}`}>
+                    Kategorie
+                  </button>
                 </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4">
+              {sortBy === 'name' ? (
+                <div className="space-y-4">
+                  {sortedActiveItems.map(item => <ItemRow key={item.id} item={item} onToggle={toggleItem} onDelete={deleteItem} onEdit={() => setSelectedItemForEdit({ ...item })} isHighlighted={highlightedItemId === item.id} />)}
+                </div>
+              ) : (
+                <>
+                  {uncategorized.length > 0 && (
+                    <div className="space-y-4">
+                      {uncategorized.map(item => <ItemRow key={item.id} item={item} onToggle={toggleItem} onDelete={deleteItem} onEdit={() => setSelectedItemForEdit({ ...item })} isHighlighted={highlightedItemId === item.id} />)}
+                    </div>
+                  )}
+                  {categories.map(cat => {
+                    const catItems = grouped[cat.id]
+                    if (!catItems) return null
+                    return (
+                      <div key={cat.id} className="space-y-4 mt-2">
+                        {catItems.map(item => <ItemRow key={item.id} item={item} onToggle={toggleItem} onDelete={deleteItem} onEdit={() => setSelectedItemForEdit({ ...item })} isHighlighted={highlightedItemId === item.id} />)}
+                      </div>
+                    )
+                  })}
+                </>
               )}
 
-              {categories.map(cat => {
-                const catItems = grouped[cat.id]
-                if (!catItems) return null
-                return (
-                  <div key={cat.id} className="space-y-4 mt-2">
-                    {catItems.map(item => <ItemRow key={item.id} item={item} onToggle={toggleItem} onDelete={deleteItem} onEdit={() => setSelectedItemForEdit({ ...item })} isHighlighted={highlightedItemId === item.id} />)}
-                  </div>
-                )
-              })}
-            </>
-          )}
-
-          {activeItems.length === 0 && (
-            <div className="text-center py-16 text-outline-variant">
-              <div className="text-4xl mb-3 opacity-60">✨</div>
-              <p className="text-[14px] font-medium">Wszystko kupione!</p>
+              {activeItems.length === 0 && (
+                <div className="text-center py-16 text-outline-variant">
+                  <div className="text-4xl mb-3 opacity-60">✨</div>
+                  <p className="text-[14px] font-medium">Lista do kupienia jest pusta!</p>
+                </div>
+              )}
             </div>
-          )}
-        </div>
+          </div>
+        )}
 
-        {/* Bought Items Section */}
-        {boughtItems.length > 0 && (
-          <div className="mt-12">
-            <button onClick={() => setShowBought(b => !b)}
-              className="flex items-center gap-2 font-label-sm text-[12px] text-on-surface-variant hover:text-primary transition-colors w-full"
-            >
-              <div className="flex-1 h-px bg-surface-container-high" />
-              <span>Kupione ({boughtCount})</span>
-              <span className="material-symbols-outlined text-[16px] transition-transform duration-200" style={{ transform: showBought ? 'rotate(180deg)' : 'rotate(0deg)' }}>
-                expand_more
-              </span>
-              <div className="flex-1 h-px bg-surface-container-high" />
-            </button>
-            {showBought && (
-              <div className="mt-4 grid grid-cols-1 gap-4">
-                {boughtItems.map(item => <ItemRow key={item.id} item={item} onToggle={toggleItem} onDelete={deleteItem} onEdit={() => setSelectedItemForEdit({ ...item })} isHighlighted={highlightedItemId === item.id} />)}
-              </div>
+        {activeTab === 'kupione' && (
+          <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+             <div className="flex justify-between items-center mb-4 px-1">
+              <h3 className="font-headline-md text-[20px] font-semibold text-on-surface">Kupione produkty ({boughtItems.length})</h3>
+            </div>
+            
+            <div className="grid grid-cols-1 gap-4">
+              {boughtItems.length > 0 ? (
+                boughtItems.map(item => <ItemRow key={item.id} item={item} onToggle={toggleItem} onDelete={deleteItem} onEdit={() => setSelectedItemForEdit({ ...item })} isHighlighted={highlightedItemId === item.id} />)
+              ) : (
+                <div className="text-center py-16 text-outline-variant">
+                  <div className="text-4xl mb-3 opacity-60">🛒</div>
+                  <p className="text-[14px] font-medium">Jeszcze nic nie kupiono.</p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'undo' && (
+          <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+             <div className="flex justify-between items-center mb-4 px-1">
+              <h3 className="font-headline-md text-[20px] font-semibold text-error">Kosz (Usunięte)</h3>
+            </div>
+            
+            <div className="grid grid-cols-1 gap-4 mb-4">
+              {undoList.length > 0 ? (
+                undoList.map(item => <UndoItemRow key={`undo-${item.id}`} item={item} onRestore={restoreItem} onPermanentDelete={permanentDeleteUndo} />)
+              ) : (
+                <div className="text-center py-16 text-outline-variant">
+                  <div className="text-4xl mb-3 opacity-60">🗑️</div>
+                  <p className="text-[14px] font-medium">Kosz jest pusty.</p>
+                  <p className="text-[12px] mt-2">Usunięte produkty znikają bezpowrotnie po wyjściu z aplikacji.</p>
+                </div>
+              )}
+            </div>
+            {undoList.length > 0 && (
+               <button onClick={() => setUndoList([])} className="w-full py-3 text-center text-[14px] font-semibold text-error hover:bg-error-container/20 rounded-xl transition-all">
+                 Opróżnij kosz natychmiast
+               </button>
             )}
           </div>
         )}
+
       </main>
 
       {showMembers && <MembersModal householdId={householdId} onClose={() => setShowMembers(false)} />}
