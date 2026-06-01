@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import LoginForm from './LoginForm'
+import Link from 'next/link'
 
 interface Props { searchParams: Promise<{ redirectTo?: string; error?: string }> }
 
@@ -31,6 +32,15 @@ export default async function LoginPage(props: Props) {
           <div className="h-1 bg-outline-variant rounded-full"></div>
           <div className="h-1 bg-outline-variant rounded-full"></div>
           <div className="h-1 bg-outline-variant rounded-full"></div>
+        </div>
+        
+        <div className="mt-8 text-center text-[12px] text-on-surface-variant opacity-70">
+          Korzystając z aplikacji, akceptujesz nasz{' '}
+          <Link href="/terms" className="underline hover:text-primary">Regulamin</Link>
+          {' '}oraz{' '}
+          <Link href="/privacy" className="underline hover:text-primary">Politykę Prywatności</Link>.
+          <br/>
+          <Link href="/help" className="underline hover:text-primary mt-1 inline-block">Potrzebujesz pomocy?</Link>
         </div>
       </div>
       
