@@ -5,12 +5,13 @@ import { createClient } from '@/lib/supabase/client'
 import type { Preset } from '@/lib/types'
 
 interface Props {
+  householdId: string
   presets: Preset[]
   onClose: () => void
   onPresetsUpdated: (presets: Preset[]) => void
 }
 
-export default function PresetsManagerModal({ presets, onClose, onPresetsUpdated }: Props) {
+export default function PresetsManagerModal({ householdId, presets, onClose, onPresetsUpdated }: Props) {
   const supabase = createClient()
   const [localPresets, setLocalPresets] = useState<Preset[]>(presets)
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -19,16 +20,28 @@ export default function PresetsManagerModal({ presets, onClose, onPresetsUpdated
   const [editIngredients, setEditIngredients] = useState<string[]>([])
   const [newIngredient, setNewIngredient] = useState('')
   const [isSaving, setIsSaving] = useState(false)
+  
+  const [isCreating, setIsCreating] = useState(false)
 
   function startEdit(p: Preset) {
     setEditingId(p.id)
+    setIsCreating(false)
     setEditName(p.name)
     setEditIngredients([...p.ingredients])
+    setNewIngredient('')
+  }
+  
+  function startCreate() {
+    setEditingId(null)
+    setIsCreating(true)
+    setEditName('')
+    setEditIngredients([])
     setNewIngredient('')
   }
 
   function cancelEdit() {
     setEditingId(null)
+    setIsCreating(false)
   }
 
   function removeIngredient(index: number) {
@@ -54,25 +67,49 @@ export default function PresetsManagerModal({ presets, onClose, onPresetsUpdated
     setNewIngredient('')
   }
 
-  async function savePreset(id: string) {
+  async function savePreset(id: string | null) {
     if (!editName.trim()) return
     setIsSaving(true)
     
-    const { data, error } = await supabase
-      .from('presets')
-      .update({ name: editName.trim(), ingredients: editIngredients })
-      .eq('id', id)
-      .select()
-      .single()
+    if (id) {
+      // Edycja istniejącego
+      const { data, error } = await supabase
+        .from('presets')
+        .update({ name: editName.trim(), ingredients: editIngredients })
+        .eq('id', id)
+        .select()
+        .single()
 
-    if (!error && data) {
-      const updated = localPresets.map(p => p.id === id ? data as Preset : p)
-      setLocalPresets(updated)
-      onPresetsUpdated(updated)
-      setEditingId(null)
+      if (!error && data) {
+        const updated = localPresets.map(p => p.id === id ? data as Preset : p)
+        setLocalPresets(updated)
+        onPresetsUpdated(updated)
+        setEditingId(null)
+      } else {
+        alert('Nie udało się zapisać szablonu.')
+      }
     } else {
-      alert('Nie udało się zapisać szablonu.')
+      // Tworzenie nowego
+      const { data, error } = await supabase
+        .from('presets')
+        .insert({
+          household_id: householdId,
+          name: editName.trim(),
+          ingredients: editIngredients
+        })
+        .select()
+        .single()
+
+      if (!error && data) {
+        const updated = [...localPresets, data as Preset]
+        setLocalPresets(updated)
+        onPresetsUpdated(updated)
+        setIsCreating(false)
+      } else {
+        alert('Nie udało się utworzyć szablonu.')
+      }
     }
+    
     setIsSaving(false)
   }
 
@@ -105,8 +142,70 @@ export default function PresetsManagerModal({ presets, onClose, onPresetsUpdated
         </div>
         
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
-          {localPresets.length === 0 ? (
-            <div className="text-center py-10 opacity-70">
+          
+          {!isCreating && (
+            <button onClick={startCreate} className="w-full py-3 mb-2 flex items-center justify-center gap-2 border-2 border-dashed border-primary/50 text-primary rounded-2xl hover:bg-primary-container/20 transition-all font-bold active:scale-95">
+              <span className="material-symbols-outlined text-[20px]">add_circle</span>
+              Stwórz nowy szablon
+            </button>
+          )}
+
+          {isCreating && (
+             <div className="bg-primary-container/20 rounded-2xl p-4 border border-primary/30 mb-4 animate-in fade-in duration-200">
+               <h3 className="font-bold text-[16px] text-primary mb-3">Nowy szablon</h3>
+               <div className="mb-3">
+                 <label className="text-[12px] font-bold text-on-surface-variant mb-1 block">Nazwa szablonu</label>
+                 <input
+                   type="text"
+                   value={editName}
+                   onChange={e => setEditName(e.target.value)}
+                   className="w-full bg-surface border border-outline-variant rounded-xl px-3 py-2 text-[14px] text-on-surface focus:outline-none focus:border-primary transition-colors"
+                   placeholder="Nasz nowy przepis..."
+                 />
+               </div>
+               
+               <div className="mb-3">
+                 <label className="text-[12px] font-bold text-on-surface-variant mb-1 block">Składniki</label>
+                 <div className="flex flex-wrap gap-2 mb-2 bg-surface p-2 rounded-xl border border-surface-container min-h-[44px]">
+                   {editIngredients.map((ing, idx) => (
+                     <span key={idx} className="bg-primary-container text-on-primary-container px-2 py-1 rounded-lg text-[12px] font-bold flex items-center gap-1">
+                       {ing}
+                       <button onClick={() => removeIngredient(idx)} className="w-4 h-4 flex items-center justify-center rounded-full hover:bg-black/10 transition-colors">
+                         <span className="material-symbols-outlined text-[12px]">close</span>
+                       </button>
+                     </span>
+                   ))}
+                   {editIngredients.length === 0 && <span className="text-[12px] text-on-surface-variant py-1 opacity-60">Brak składników</span>}
+                 </div>
+                 
+                 <div className="flex gap-2">
+                   <input
+                     type="text"
+                     placeholder="Dodaj składnik (Enter)"
+                     value={newIngredient}
+                     onChange={e => setNewIngredient(e.target.value)}
+                     onKeyDown={addIngredient}
+                     className="flex-1 bg-surface border border-outline-variant rounded-xl px-3 py-2 text-[13px] text-on-surface focus:outline-none focus:border-primary transition-colors"
+                   />
+                   <button onClick={addIngredientBtn} className="bg-surface-container-highest text-on-surface px-3 rounded-xl text-[20px] flex items-center justify-center font-bold active:scale-95 transition-all hover:bg-primary-container hover:text-primary">
+                     +
+                   </button>
+                 </div>
+               </div>
+
+               <div className="flex gap-2 mt-4 pt-4 border-t border-primary/20">
+                 <button onClick={cancelEdit} className="flex-1 py-2 rounded-xl font-bold text-[14px] bg-surface text-on-surface border border-surface-container hover:bg-surface-container-low transition-colors active:scale-95">
+                   Anuluj
+                 </button>
+                 <button onClick={() => savePreset(null)} disabled={isSaving || !editName.trim()} className="flex-1 py-2 rounded-xl font-bold text-[14px] bg-primary text-on-primary hover:opacity-90 transition-opacity active:scale-95 disabled:opacity-50">
+                   {isSaving ? 'Tworzę...' : 'Stwórz'}
+                 </button>
+               </div>
+             </div>
+          )}
+
+          {localPresets.length === 0 && !isCreating ? (
+            <div className="text-center py-6 opacity-70">
               <span className="material-symbols-outlined text-4xl mb-2">library_add</span>
               <p className="text-[14px]">Nie masz jeszcze żadnych szablonów.</p>
             </div>
@@ -120,10 +219,10 @@ export default function PresetsManagerModal({ presets, onClose, onPresetsUpdated
                       <div className="flex items-center justify-between mb-2">
                         <h3 className="font-bold text-[16px] text-primary">{p.name}</h3>
                         <div className="flex items-center gap-1">
-                          <button onClick={() => startEdit(p)} className="w-8 h-8 flex items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container transition-all active:scale-95">
+                          <button onClick={() => startEdit(p)} disabled={isCreating || editingId !== null} className="w-8 h-8 flex items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container transition-all active:scale-95 disabled:opacity-30 disabled:hover:bg-transparent">
                             <span className="material-symbols-outlined text-[18px]">edit</span>
                           </button>
-                          <button onClick={() => deletePreset(p.id)} className="w-8 h-8 flex items-center justify-center rounded-full text-error hover:bg-error-container/50 transition-all active:scale-95">
+                          <button onClick={() => deletePreset(p.id)} disabled={isCreating || editingId !== null} className="w-8 h-8 flex items-center justify-center rounded-full text-error hover:bg-error-container/50 transition-all active:scale-95 disabled:opacity-30 disabled:hover:bg-transparent">
                             <span className="material-symbols-outlined text-[18px]">delete</span>
                           </button>
                         </div>
@@ -164,16 +263,16 @@ export default function PresetsManagerModal({ presets, onClose, onPresetsUpdated
                         
                         <div className="flex gap-2">
                           <input
-                            type="text"
-                            placeholder="Dodaj składnik (Enter)"
-                            value={newIngredient}
-                            onChange={e => setNewIngredient(e.target.value)}
-                            onKeyDown={addIngredient}
-                            className="flex-1 bg-surface border border-outline-variant rounded-xl px-3 py-2 text-[13px] text-on-surface focus:outline-none focus:border-primary transition-colors"
-                          />
-                          <button onClick={addIngredientBtn} className="bg-surface-container-highest text-on-surface px-3 rounded-xl text-[20px] flex items-center justify-center font-bold active:scale-95 transition-all hover:bg-primary-container hover:text-primary">
-                            +
-                          </button>
+                             type="text"
+                             placeholder="Dodaj składnik (Enter)"
+                             value={newIngredient}
+                             onChange={e => setNewIngredient(e.target.value)}
+                             onKeyDown={addIngredient}
+                             className="flex-1 bg-surface border border-outline-variant rounded-xl px-3 py-2 text-[13px] text-on-surface focus:outline-none focus:border-primary transition-colors"
+                           />
+                           <button onClick={addIngredientBtn} className="bg-surface-container-highest text-on-surface px-3 rounded-xl text-[20px] flex items-center justify-center font-bold active:scale-95 transition-all hover:bg-primary-container hover:text-primary">
+                             +
+                           </button>
                         </div>
                       </div>
 

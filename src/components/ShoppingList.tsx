@@ -528,6 +528,7 @@ export default function ShoppingList({ initialItems, categories, frequentItems, 
       {showMembers && <MembersModal householdId={householdId} onClose={() => setShowMembers(false)} />}
       {showPresetsManager && (
         <PresetsManagerModal 
+          householdId={householdId}
           presets={presets} 
           onClose={() => setShowPresetsManager(false)} 
           onPresetsUpdated={setPresets} 
