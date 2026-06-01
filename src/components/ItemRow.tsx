@@ -7,10 +7,11 @@ interface Props {
   item:          Item
   onToggle:      (id: string) => void
   onDelete:      (id: string) => void
+  onEdit?:       (item: Item) => void
   isHighlighted?: boolean
 }
 
-export default function ItemRow({ item, onToggle, onDelete, isHighlighted }: Props) {
+export default function ItemRow({ item, onToggle, onDelete, onEdit, isHighlighted }: Props) {
   const isBought = item.is_bought
   const cat = item.category
   const rowRef = useRef<HTMLDivElement>(null)
@@ -27,7 +28,11 @@ export default function ItemRow({ item, onToggle, onDelete, isHighlighted }: Pro
       ${!isHighlighted && isBought ? 'bg-surface-container/30 border-gray-100 opacity-60' : ''}
       ${!isHighlighted && !isBought ? 'bg-surface-container-lowest border-gray-200 hover:border-primary' : ''}
     `}>
-      <div className="flex items-center gap-3 min-w-0">
+      <button 
+        type="button"
+        onClick={() => onEdit && onEdit(item)}
+        className="flex items-center gap-3 min-w-0 flex-1 text-left cursor-pointer"
+      >
         <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-xl flex-shrink-0
           ${isBought ? 'bg-surface-container-high/50 grayscale' : 'bg-surface-container-high'}
         `}>
@@ -55,7 +60,7 @@ export default function ItemRow({ item, onToggle, onDelete, isHighlighted }: Pro
             </div>
           )}
         </div>
-      </div>
+      </button>
       
       <div className="flex items-center gap-1 flex-shrink-0">
         <button

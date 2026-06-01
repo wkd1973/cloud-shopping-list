@@ -78,3 +78,11 @@ export interface FrequentItem {
   category_id: string | null
   occurrence_count: number
 }
+
+export interface Preset {
+  id: string
+  household_id: string
+  name: string
+  ingredients: string[]
+  created_at: string
+}

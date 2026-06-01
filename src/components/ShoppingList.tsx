@@ -8,11 +8,14 @@ import ItemRow from './ItemRow'
 import AddItemForm from './AddItemForm'
 import CategoryFilter from './CategoryFilter'
 import MembersModal from './MembersModal'
+import PresetsCarousel from './PresetsCarousel'
+import type { Preset } from '@/lib/types'
 
 interface Props {
   initialItems:  Item[]
   categories:    Category[]
   frequentItems: FrequentItem[]
+  presets:       Preset[]
   householdId:   string
   listId:        string
   listName:      string
@@ -22,16 +25,18 @@ interface Props {
   isAdmin:       boolean
 }
 
-export default function ShoppingList({ initialItems, categories, frequentItems, householdId, listId, listName, listEmoji, userId, userEmail, isAdmin }: Props) {
+export default function ShoppingList({ initialItems, categories, frequentItems, presets: initialPresets, householdId, listId, listName, listEmoji, userId, userEmail, isAdmin }: Props) {
   const supabase = createClient()
   const router   = useRouter()
   const [items, setItems]                   = useState<Item[]>(initialItems)
+  const [presets, setPresets]               = useState<Preset[]>(initialPresets)
   const [filterCategory, setFilterCategory] = useState<string | null>(null)
   const [sortBy, setSortBy]                 = useState<'name' | 'category'>('name')
   const [showBought, setShowBought]         = useState(false)
   const [showMenu, setShowMenu]             = useState(false)
   const [showMembers, setShowMembers]       = useState(false)
   const [highlightedItemId, setHighlightedItemId] = useState<string | null>(null)
+  const [selectedItemForEdit, setSelectedItemForEdit] = useState<Item | null>(null)
   const [, startTransition]                 = useTransition()
 
   const [optimisticItems, addOptimistic] = useOptimistic(
@@ -76,12 +81,24 @@ export default function ShoppingList({ initialItems, categories, frequentItems, 
       if (existingItem.is_bought && !showBought) {
         setShowBought(true);
       }
+
+      const quantityChanged = (existingItem.quantity || '') !== (quantity || '');
+      const categoryChanged = existingItem.category_id !== categoryId;
+      
+      if (quantityChanged || categoryChanged) {
+        startTransition(() => {
+          setItems(prev => prev.map(i => i.id === existingItem.id ? { ...i, quantity: quantity || null, category_id: categoryId } : i));
+        });
+        await supabase.from('items').update({ quantity: quantity || null, category_id: categoryId }).eq('id', existingItem.id);
+      }
+
       // Small delay to allow the DOM to render if showBought was just flipped to true
       setTimeout(() => {
         setHighlightedItemId(existingItem.id);
       }, 50);
       
       setTimeout(() => setHighlightedItemId(null), 1500);
+      setSelectedItemForEdit(null);
       return;
     }
 
@@ -102,6 +119,95 @@ export default function ShoppingList({ initialItems, categories, frequentItems, 
 
     if (!error && newItem) {
       setItems(prev => prev.some(i => i.id === newItem.id) ? prev : [newItem as Item, ...prev])
+    }
+  }
+
+  async function applyPreset(preset: Preset) {
+    if (!preset.ingredients || preset.ingredients.length === 0) return;
+
+    // Pobierz wszystkie aktywne produkty by zapobiec duplikatom
+    const existingNames = new Set(
+      items.filter(i => i.archived_at === null).map(i => i.name.trim().toLowerCase())
+    );
+
+    const itemsToAdd = preset.ingredients
+      .filter(ing => ing.trim() !== '')
+      .map(ing => ing.trim())
+      .filter(ing => !existingNames.has(ing.toLowerCase()));
+
+    if (itemsToAdd.length === 0) {
+      alert(`Wszystkie składniki z szablonu "${preset.name}" są już na liście!`);
+      return;
+    }
+
+    const optimisticNewItems = itemsToAdd.map(name => ({
+      id: crypto.randomUUID(),
+      household_id: householdId,
+      list_id: listId,
+      category_id: null,
+      name,
+      quantity: null,
+      note: null,
+      added_by: userId,
+      is_bought: false,
+      bought_by: null,
+      bought_at: null,
+      archived_at: null,
+      created_at: new Date().toISOString(),
+      category: null,
+    }));
+
+    // Optymistyczne dodanie
+    optimisticNewItems.forEach(item => {
+      startTransition(() => { addOptimistic({ type: 'add', item }) })
+    });
+
+    const rowsToInsert = itemsToAdd.map(name => ({
+      household_id: householdId,
+      list_id: listId,
+      name,
+      added_by: userId
+    }));
+
+    const { data: insertedItems, error } = await supabase
+      .from('items')
+      .insert(rowsToInsert)
+      .select('*, category:categories(*)');
+
+    if (!error && insertedItems) {
+      setItems(prev => {
+        const existingIds = new Set(prev.map(i => i.id));
+        const newOnes = insertedItems.filter(i => !existingIds.has(i.id)) as Item[];
+        return [...newOnes, ...prev];
+      });
+      // Opcjonalny toast (zamiast alertu), ale alert dla uproszczenia
+      // alert(`Dodano ${insertedItems.length} składników z szablonu "${preset.name}".`);
+    }
+  }
+
+  async function saveAsPreset(name: string) {
+    const activeNames = items
+      .filter(i => i.archived_at === null && !i.is_bought)
+      .map(i => i.name.trim())
+      .filter(n => n !== '');
+
+    if (activeNames.length === 0) {
+      alert('Nie masz żadnych aktywnych (niekupionych) produktów do zapisania jako szablon.');
+      return;
+    }
+
+    const { data: newPreset, error } = await supabase
+      .from('presets')
+      .insert({
+        household_id: householdId,
+        name,
+        ingredients: activeNames
+      })
+      .select('*')
+      .single();
+
+    if (!error && newPreset) {
+      setPresets(prev => [...prev, newPreset as Preset]);
     }
   }
 
@@ -159,10 +265,10 @@ export default function ShoppingList({ initialItems, categories, frequentItems, 
     for (const i of items) {
       const key = i.name.toLowerCase()
       if (!map.has(key) && i.name.trim() !== '') {
-        map.set(key, { name: i.name.trim(), category_id: i.category_id, frequency: 1 })
+        map.set(key, { name: i.name.trim(), category_id: i.category_id, occurrence_count: 1 })
       }
     }
-    return Array.from(map.values()).sort((a, b) => b.frequency - a.frequency)
+    return Array.from(map.values()).sort((a, b) => b.occurrence_count - a.occurrence_count)
   }, [frequentItems, items])
 
   return (
@@ -218,9 +324,22 @@ export default function ShoppingList({ initialItems, categories, frequentItems, 
 
         <CategoryFilter categories={categories} activeCategory={filterCategory} onSelect={setFilterCategory} />
 
+        <PresetsCarousel 
+          presets={presets} 
+          onApplyPreset={applyPreset} 
+          onSaveAsPreset={saveAsPreset} 
+        />
+
         {/* Add Item form */}
         <div className="mb-8">
-          <AddItemForm categories={categories} frequentItems={combinedSuggestions} defaultCategoryId={filterCategory} onAdd={addItem} />
+          <AddItemForm 
+            categories={categories} 
+            frequentItems={combinedSuggestions} 
+            activeItems={activeItems}
+            selectedItemForEdit={selectedItemForEdit}
+            defaultCategoryId={filterCategory} 
+            onAdd={addItem} 
+          />
         </div>
 
         {/* Items Content */}
@@ -244,13 +363,13 @@ export default function ShoppingList({ initialItems, categories, frequentItems, 
         <div className="grid grid-cols-1 gap-4">
           {sortBy === 'name' ? (
             <div className="space-y-4">
-              {sortedActiveItems.map(item => <ItemRow key={item.id} item={item} onToggle={toggleItem} onDelete={deleteItem} isHighlighted={highlightedItemId === item.id} />)}
+              {sortedActiveItems.map(item => <ItemRow key={item.id} item={item} onToggle={toggleItem} onDelete={deleteItem} onEdit={() => setSelectedItemForEdit({ ...item })} isHighlighted={highlightedItemId === item.id} />)}
             </div>
           ) : (
             <>
               {uncategorized.length > 0 && (
                 <div className="space-y-4">
-                  {uncategorized.map(item => <ItemRow key={item.id} item={item} onToggle={toggleItem} onDelete={deleteItem} isHighlighted={highlightedItemId === item.id} />)}
+                  {uncategorized.map(item => <ItemRow key={item.id} item={item} onToggle={toggleItem} onDelete={deleteItem} onEdit={() => setSelectedItemForEdit({ ...item })} isHighlighted={highlightedItemId === item.id} />)}
                 </div>
               )}
 
@@ -259,7 +378,7 @@ export default function ShoppingList({ initialItems, categories, frequentItems, 
                 if (!catItems) return null
                 return (
                   <div key={cat.id} className="space-y-4 mt-2">
-                    {catItems.map(item => <ItemRow key={item.id} item={item} onToggle={toggleItem} onDelete={deleteItem} isHighlighted={highlightedItemId === item.id} />)}
+                    {catItems.map(item => <ItemRow key={item.id} item={item} onToggle={toggleItem} onDelete={deleteItem} onEdit={() => setSelectedItemForEdit({ ...item })} isHighlighted={highlightedItemId === item.id} />)}
                   </div>
                 )
               })}
@@ -289,7 +408,7 @@ export default function ShoppingList({ initialItems, categories, frequentItems, 
             </button>
             {showBought && (
               <div className="mt-4 grid grid-cols-1 gap-4">
-                {boughtItems.map(item => <ItemRow key={item.id} item={item} onToggle={toggleItem} onDelete={deleteItem} isHighlighted={highlightedItemId === item.id} />)}
+                {boughtItems.map(item => <ItemRow key={item.id} item={item} onToggle={toggleItem} onDelete={deleteItem} onEdit={() => setSelectedItemForEdit({ ...item })} isHighlighted={highlightedItemId === item.id} />)}
               </div>
             )}
           </div>

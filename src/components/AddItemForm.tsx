@@ -1,22 +1,37 @@
 'use client'
 
-import { useRef, useState } from 'react'
-import type { Category, FrequentItem } from '@/lib/types'
+import { useRef, useState, useEffect } from 'react'
+import type { Category, FrequentItem, Item } from '@/lib/types'
 
 interface Props {
-  categories:        Category[]
-  frequentItems?:    FrequentItem[]
-  defaultCategoryId: string | null
-  onAdd:             (name: string, quantity: string, categoryId: string | null) => void
+  categories:          Category[]
+  frequentItems?:      FrequentItem[]
+  activeItems?:        Item[]
+  selectedItemForEdit?: Item | null
+  defaultCategoryId:   string | null
+  onAdd:               (name: string, quantity: string, categoryId: string | null) => void
 }
 
-export default function AddItemForm({ categories, frequentItems = [], defaultCategoryId, onAdd }: Props) {
+export default function AddItemForm({ categories, frequentItems = [], activeItems = [], selectedItemForEdit, defaultCategoryId, onAdd }: Props) {
   const [name, setName]             = useState('')
   const [quantity, setQuantity]     = useState('')
   const [categoryId, setCategoryId] = useState<string | null>(defaultCategoryId)
   const [expanded, setExpanded]     = useState(false)
   const [shaking, setShaking]       = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    if (selectedItemForEdit) {
+      setName(selectedItemForEdit.name)
+      setQuantity(selectedItemForEdit.quantity || '')
+      setCategoryId(selectedItemForEdit.category_id)
+      setExpanded(true)
+      inputRef.current?.focus()
+    }
+  }, [selectedItemForEdit])
+
+  const existingItem = activeItems.find(i => i.name.toLowerCase() === name.trim().toLowerCase());
+  const isEditing = !!existingItem;
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -63,7 +78,7 @@ export default function AddItemForm({ categories, frequentItems = [], defaultCat
         <button type="submit"
           className="flex-shrink-0 px-4 py-1.5 rounded-xl bg-primary-container hover:bg-emerald-600 text-on-primary-container font-label-sm text-[12px] font-bold transition-all active:scale-95"
         >
-          Dodaj
+          {isEditing ? 'Zapisz' : 'Dodaj'}
         </button>
       </div>
 
