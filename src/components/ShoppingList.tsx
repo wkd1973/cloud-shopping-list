@@ -378,23 +378,26 @@ export default function ShoppingList({ initialItems, categories, frequentItems, 
         <div className="flex bg-surface-container-low rounded-xl p-1 mb-6 shadow-sm">
           <button 
             onClick={() => setActiveTab('lista')} 
-            className={`flex-1 py-2 text-center rounded-lg text-[14px] font-bold transition-all ${activeTab === 'lista' ? 'bg-surface shadow-sm text-primary' : 'text-on-surface-variant hover:text-on-surface'}`}
+            className={`flex-1 flex flex-col sm:flex-row items-center justify-center gap-1 py-2 sm:py-2.5 rounded-lg text-[12px] sm:text-[14px] font-bold transition-all ${activeTab === 'lista' ? 'bg-surface shadow-sm text-primary' : 'text-on-surface-variant hover:text-on-surface'}`}
           >
-            Do kupienia
+            <span className="material-symbols-outlined text-[18px] sm:text-[20px]">shopping_bag</span>
+            <span>Do kupienia</span>
           </button>
           <button 
             onClick={() => setActiveTab('kupione')} 
-            className={`flex-1 py-2 text-center rounded-lg text-[14px] font-bold transition-all ${activeTab === 'kupione' ? 'bg-surface shadow-sm text-primary' : 'text-on-surface-variant hover:text-on-surface'}`}
+            className={`flex-1 flex flex-col sm:flex-row items-center justify-center gap-1 py-2 sm:py-2.5 rounded-lg text-[12px] sm:text-[14px] font-bold transition-all ${activeTab === 'kupione' ? 'bg-surface shadow-sm text-primary' : 'text-on-surface-variant hover:text-on-surface'}`}
           >
-            Kupione
+            <span className="material-symbols-outlined text-[18px] sm:text-[20px]">task_alt</span>
+            <span>Kupione</span>
           </button>
           <button 
             onClick={() => setActiveTab('undo')} 
-            className={`flex-1 py-2 text-center rounded-lg text-[14px] font-bold transition-all relative ${activeTab === 'undo' ? 'bg-surface shadow-sm text-error' : 'text-on-surface-variant hover:text-on-surface'}`}
+            className={`flex-1 flex flex-col sm:flex-row items-center justify-center gap-1 py-2 sm:py-2.5 rounded-lg text-[12px] sm:text-[14px] font-bold transition-all relative ${activeTab === 'undo' ? 'bg-surface shadow-sm text-error' : 'text-on-surface-variant hover:text-on-surface'}`}
           >
-            Kosz
+            <span className="material-symbols-outlined text-[18px] sm:text-[20px]">delete</span>
+            <span>Kosz</span>
             {undoList.length > 0 && (
-              <span className="absolute top-1 right-2 w-2 h-2 bg-error rounded-full"></span>
+              <span className="absolute top-1 right-2 sm:right-4 w-2 h-2 bg-error rounded-full"></span>
             )}
           </button>
         </div>
