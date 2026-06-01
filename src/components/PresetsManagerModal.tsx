@@ -17,6 +17,7 @@ export default function PresetsManagerModal({ householdId, presets, onClose, onP
   const [editingId, setEditingId] = useState<string | null>(null)
   
   const [editName, setEditName] = useState('')
+  const [editIcon, setEditIcon] = useState('')
   const [editIngredients, setEditIngredients] = useState<string[]>([])
   const [newIngredient, setNewIngredient] = useState('')
   const [isSaving, setIsSaving] = useState(false)
@@ -27,6 +28,7 @@ export default function PresetsManagerModal({ householdId, presets, onClose, onP
     setEditingId(p.id)
     setIsCreating(false)
     setEditName(p.name)
+    setEditIcon(p.icon || '')
     setEditIngredients([...p.ingredients])
     setNewIngredient('')
   }
@@ -35,6 +37,7 @@ export default function PresetsManagerModal({ householdId, presets, onClose, onP
     setEditingId(null)
     setIsCreating(true)
     setEditName('')
+    setEditIcon('')
     setEditIngredients([])
     setNewIngredient('')
   }
@@ -75,7 +78,7 @@ export default function PresetsManagerModal({ householdId, presets, onClose, onP
       // Edycja istniejącego
       const { data, error } = await supabase
         .from('presets')
-        .update({ name: editName.trim(), ingredients: editIngredients })
+        .update({ name: editName.trim(), icon: editIcon.trim() || null, ingredients: editIngredients })
         .eq('id', id)
         .select()
         .single()
@@ -95,6 +98,7 @@ export default function PresetsManagerModal({ householdId, presets, onClose, onP
         .insert({
           household_id: householdId,
           name: editName.trim(),
+          icon: editIcon.trim() || null,
           ingredients: editIngredients
         })
         .select()
@@ -153,15 +157,28 @@ export default function PresetsManagerModal({ householdId, presets, onClose, onP
           {isCreating && (
              <div className="bg-primary-container/20 rounded-2xl p-4 border border-primary/30 mb-4 animate-in fade-in duration-200">
                <h3 className="font-bold text-[16px] text-primary mb-3">Nowy szablon</h3>
-               <div className="mb-3">
-                 <label className="text-[12px] font-bold text-on-surface-variant mb-1 block">Nazwa szablonu</label>
-                 <input
-                   type="text"
-                   value={editName}
-                   onChange={e => setEditName(e.target.value)}
-                   className="w-full bg-surface border border-outline-variant rounded-xl px-3 py-2 text-[14px] text-on-surface focus:outline-none focus:border-primary transition-colors"
-                   placeholder="Nasz nowy przepis..."
-                 />
+               <div className="mb-3 flex gap-3">
+                 <div className="w-16">
+                   <label className="text-[12px] font-bold text-on-surface-variant mb-1 block">Ikona</label>
+                   <input
+                     type="text"
+                     maxLength={2}
+                     value={editIcon}
+                     onChange={e => setEditIcon(e.target.value)}
+                     className="w-full bg-surface border border-outline-variant rounded-xl px-2 py-2 text-[14px] text-center text-on-surface focus:outline-none focus:border-primary transition-colors"
+                     placeholder="🥩"
+                   />
+                 </div>
+                 <div className="flex-1">
+                   <label className="text-[12px] font-bold text-on-surface-variant mb-1 block">Nazwa szablonu</label>
+                   <input
+                     type="text"
+                     value={editName}
+                     onChange={e => setEditName(e.target.value)}
+                     className="w-full bg-surface border border-outline-variant rounded-xl px-3 py-2 text-[14px] text-on-surface focus:outline-none focus:border-primary transition-colors"
+                     placeholder="Nasz nowy przepis..."
+                   />
+                 </div>
                </div>
                
                <div className="mb-3">
@@ -217,7 +234,10 @@ export default function PresetsManagerModal({ householdId, presets, onClose, onP
                   {!isEditing ? (
                     <div>
                       <div className="flex items-center justify-between mb-2">
-                        <h3 className="font-bold text-[16px] text-primary">{p.name}</h3>
+                        <h3 className="font-bold text-[16px] text-primary flex items-center gap-2">
+                          {p.icon && <span>{p.icon}</span>}
+                          {p.name}
+                        </h3>
                         <div className="flex items-center gap-1">
                           <button onClick={() => startEdit(p)} disabled={isCreating || editingId !== null} className="w-8 h-8 flex items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container transition-all active:scale-95 disabled:opacity-30 disabled:hover:bg-transparent">
                             <span className="material-symbols-outlined text-[18px]">edit</span>
@@ -237,14 +257,27 @@ export default function PresetsManagerModal({ householdId, presets, onClose, onP
                     </div>
                   ) : (
                     <div className="animate-in fade-in duration-200">
-                      <div className="mb-3">
-                        <label className="text-[12px] font-bold text-on-surface-variant mb-1 block">Nazwa szablonu</label>
-                        <input
-                          type="text"
-                          value={editName}
-                          onChange={e => setEditName(e.target.value)}
-                          className="w-full bg-surface border border-outline-variant rounded-xl px-3 py-2 text-[14px] text-on-surface focus:outline-none focus:border-primary transition-colors"
-                        />
+                      <div className="mb-3 flex gap-3">
+                        <div className="w-16">
+                          <label className="text-[12px] font-bold text-on-surface-variant mb-1 block">Ikona</label>
+                          <input
+                            type="text"
+                            maxLength={2}
+                            value={editIcon}
+                            onChange={e => setEditIcon(e.target.value)}
+                            className="w-full bg-surface border border-outline-variant rounded-xl px-2 py-2 text-[14px] text-center text-on-surface focus:outline-none focus:border-primary transition-colors"
+                            placeholder="🥩"
+                          />
+                        </div>
+                        <div className="flex-1">
+                          <label className="text-[12px] font-bold text-on-surface-variant mb-1 block">Nazwa szablonu</label>
+                          <input
+                            type="text"
+                            value={editName}
+                            onChange={e => setEditName(e.target.value)}
+                            className="w-full bg-surface border border-outline-variant rounded-xl px-3 py-2 text-[14px] text-on-surface focus:outline-none focus:border-primary transition-colors"
+                          />
+                        </div>
                       </div>
                       
                       <div className="mb-3">

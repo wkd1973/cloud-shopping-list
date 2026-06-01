@@ -61,9 +61,10 @@ export default function PresetsCarousel({ presets, onApplyPreset, onSaveAsPreset
             <button
               key={preset.id}
               onClick={() => onApplyPreset(preset)}
-              className="whitespace-nowrap flex-shrink-0 bg-surface-container-low hover:bg-surface-container border border-border-subtle text-on-surface px-4 py-2 rounded-xl text-[14px] font-medium transition-colors active:scale-95"
+              className="whitespace-nowrap flex-shrink-0 bg-surface-container-low hover:bg-surface-container border border-border-subtle text-on-surface px-4 py-2 rounded-xl text-[14px] font-medium transition-colors active:scale-95 flex items-center gap-1.5"
             >
-              {preset.name}
+              {preset.icon && <span>{preset.icon}</span>}
+              <span>{preset.name}</span>
             </button>
           ))}
         </div>

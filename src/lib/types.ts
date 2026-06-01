@@ -83,6 +83,7 @@ export interface Preset {
   id: string
   household_id: string
   name: string
+  icon: string | null
   ingredients: string[]
   created_at: string
 }
