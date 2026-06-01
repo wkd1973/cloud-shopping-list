@@ -12,6 +12,7 @@
     "@ducanh2912/next-pwa": "^10.2.9",
     "@supabase/ssr": "^0.5.x",
     "@supabase/supabase-js": "^2.x",
+    "@vercel/analytics": "^2.0.1",
     "embla-carousel-react": "^8.6.0",
     "jimp": "^1.6.1",
     "next": "15.x",

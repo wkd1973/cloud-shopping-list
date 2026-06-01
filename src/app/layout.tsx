@@ -25,6 +25,7 @@ export const viewport = {
 }
 
 import CookieConsent from '@/components/CookieConsent'
+import { Analytics } from '@vercel/analytics/react'
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -35,6 +36,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="bg-gray-50 text-gray-900 antialiased min-h-screen">
         {children}
         <CookieConsent />
+        <Analytics />
       </body>
     </html>
   )
