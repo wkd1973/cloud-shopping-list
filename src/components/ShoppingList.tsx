@@ -366,12 +366,15 @@ export default function ShoppingList({ initialItems, categories, frequentItems, 
       </header>
 
       <main className="max-w-screen-sm mx-auto pt-4 px-margin-mobile">
-        <section className="mt-4 mb-6 p-6 rounded-3xl bg-gradient-to-br from-primary-container to-primary text-on-primary-container shadow-lg relative overflow-hidden">
-          <div className="relative z-10">
-            <h2 className="font-headline-md text-[20px] font-bold mb-1">Zrób zapasy!</h2>
-            <p className="font-body-md text-[14px] opacity-90">Masz {optimisticItems.filter(i => !i.is_bought && i.archived_at === null).length} produktów do kupienia.</p>
+        <section className="mt-4 mb-6 p-5 rounded-2xl bg-emerald-50/50 border border-emerald-100 flex items-center justify-between">
+          <div>
+            <h2 className="text-[18px] font-bold text-emerald-800 mb-0.5 flex items-center gap-2">
+              Zrób zapasy <span className="text-xl">🛒</span>
+            </h2>
+            <p className="text-[13px] text-emerald-600/80 font-medium">
+              Masz {optimisticItems.filter(i => !i.is_bought && i.archived_at === null).length} produktów do kupienia
+            </p>
           </div>
-          <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
         </section>
 
         {/* Zakładki (Tabs) */}
