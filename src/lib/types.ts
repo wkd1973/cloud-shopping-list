@@ -72,3 +72,9 @@ export interface AddItemPayload {
   note?: string
   category_id?: string
 }
+
+export interface FrequentItem {
+  name: string
+  category_id: string | null
+  occurrence_count: number
+}

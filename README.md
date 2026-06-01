@@ -13,6 +13,7 @@ Cel: zweryfikować Realtime, RLS, magic link auth i invite flow przed wdrożenie
 - ✅ Zapraszanie domowników przez jednorazowy link i podgląd listy członków
 - ✅ Obsługa wielu domostw (możliwość przełączania się między gospodarstwami)
 - ✅ Kategorie z kolorami i emoji oraz sortowanie produktów (A-Z lub po kategoriach)
+- ✅ Autopodpowiedzi najczęściej kupowanych produktów chroniące przed duplikatami
 - ✅ Oznaczanie produktów jako kupione → auto-archiwizacja po 24h (pg_cron)
 - ✅ Optimistic updates — UI reaguje natychmiast, nie czeka na serwer
 

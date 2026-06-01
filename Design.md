@@ -69,7 +69,10 @@ Aplikacja zbudowana jest z czterech głównych widoków dostępnych dla użytkow
     - Renderowana przez zbiór `ItemRow.tsx`.
     - Pozycje pogrupowane są na elementy do kupienia (u góry) i już kupione (przekreślone na dole, wyszarzone).
     - Każdy rząd to kółko do zaznaczania (z kolorową obwódką zależną od kategorii) oraz nazwa produktu z notatką.
-  - **Pasek dodawania (`AddItemForm.tsx`):** Przyklejony na stałe do samego dołu ekranu obszar roboczy. Zawiera wybór kategorii (małe kolorowe pigułki) oraz input tekstowy z szybkim przyciskiem "+". Działa jako szybkie dodawanie z rzędu.
+  - **Pasek dodawania (`AddItemForm.tsx`):** Przyklejony na stałe do samego dołu ekranu obszar roboczy.
+    - Zawiera input tekstowy reagujący na wpisywanie **pływającą listą (dropdown) podpowiedzi** najczęściej używanych produktów.
+    - Zapobiega dodawaniu duplikatów – jeśli dodasz produkt będący na liście, operacja zostanie zignorowana, a istniejący wiersz wyróżni się **krótką animacją pulsowania (migotania)** i zmianą tła.
+    - Po rozwinięciu formularza ujawnia wybór kategorii (kolorowe pigułki) i opcjonalne pole na ilość (np. 2kg).
 
 ### D. Ekran Akceptacji Zaproszenia (`/invite/[token]`)
 - **Cel:** Logika procesowania wejścia przez zlinkowany token.

@@ -3,25 +3,26 @@
 import { useEffect, useOptimistic, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import type { Category, Item } from '@/lib/types'
+import type { Category, Item, FrequentItem } from '@/lib/types'
 import ItemRow from './ItemRow'
 import AddItemForm from './AddItemForm'
 import CategoryFilter from './CategoryFilter'
 import MembersModal from './MembersModal'
 
 interface Props {
-  initialItems: Item[]
-  categories:   Category[]
-  householdId:  string
-  listId:       string
-  listName:     string
-  listEmoji:    string
-  userId:       string
-  userEmail:    string
-  isAdmin:      boolean
+  initialItems:  Item[]
+  categories:    Category[]
+  frequentItems: FrequentItem[]
+  householdId:   string
+  listId:        string
+  listName:      string
+  listEmoji:     string
+  userId:        string
+  userEmail:     string
+  isAdmin:       boolean
 }
 
-export default function ShoppingList({ initialItems, categories, householdId, listId, listName, listEmoji, userId, userEmail, isAdmin }: Props) {
+export default function ShoppingList({ initialItems, categories, frequentItems, householdId, listId, listName, listEmoji, userId, userEmail, isAdmin }: Props) {
   const supabase = createClient()
   const router   = useRouter()
   const [items, setItems]                   = useState<Item[]>(initialItems)
@@ -30,6 +31,7 @@ export default function ShoppingList({ initialItems, categories, householdId, li
   const [showBought, setShowBought]         = useState(false)
   const [showMenu, setShowMenu]             = useState(false)
   const [showMembers, setShowMembers]       = useState(false)
+  const [highlightedItemId, setHighlightedItemId] = useState<string | null>(null)
   const [, startTransition]                 = useTransition()
 
   const [optimisticItems, addOptimistic] = useOptimistic(
@@ -62,9 +64,23 @@ export default function ShoppingList({ initialItems, categories, householdId, li
   }, [listId, supabase])
 
   async function addItem(name: string, quantity: string, categoryId: string | null) {
+    const trimmedName = name.trim();
+    
+    // Check if item already exists on the active list
+    const existingItem = items.find(i => 
+      i.name.toLowerCase() === trimmedName.toLowerCase() && 
+      i.archived_at === null
+    );
+
+    if (existingItem) {
+      setHighlightedItemId(existingItem.id);
+      setTimeout(() => setHighlightedItemId(null), 1500);
+      return;
+    }
+
     const tempId = crypto.randomUUID()
     const optimisticItem: Item = {
-      id: tempId, household_id: householdId, list_id: listId, category_id: categoryId, name,
+      id: tempId, household_id: householdId, list_id: listId, category_id: categoryId, name: trimmedName,
       quantity: quantity || null, note: null, added_by: userId, is_bought: false,
       bought_by: null, bought_at: null, archived_at: null, created_at: new Date().toISOString(),
       category: categories.find(c => c.id === categoryId) ?? null,
@@ -73,7 +89,7 @@ export default function ShoppingList({ initialItems, categories, householdId, li
 
     const { data: newItem, error } = await supabase
       .from('items')
-      .insert({ household_id: householdId, list_id: listId, category_id: categoryId, name, quantity: quantity || null, added_by: userId })
+      .insert({ household_id: householdId, list_id: listId, category_id: categoryId, name: trimmedName, quantity: quantity || null, added_by: userId })
       .select('*, category:categories(*)')
       .single()
 
@@ -181,7 +197,7 @@ export default function ShoppingList({ initialItems, categories, householdId, li
 
         {/* Add Item form */}
         <div className="mb-8">
-          <AddItemForm categories={categories} defaultCategoryId={filterCategory} onAdd={addItem} />
+          <AddItemForm categories={categories} frequentItems={frequentItems} defaultCategoryId={filterCategory} onAdd={addItem} />
         </div>
 
         {/* Items Content */}
@@ -205,13 +221,13 @@ export default function ShoppingList({ initialItems, categories, householdId, li
         <div className="grid grid-cols-1 gap-4">
           {sortBy === 'name' ? (
             <div className="space-y-4">
-              {sortedActiveItems.map(item => <ItemRow key={item.id} item={item} onToggle={toggleItem} onDelete={deleteItem} />)}
+              {sortedActiveItems.map(item => <ItemRow key={item.id} item={item} onToggle={toggleItem} onDelete={deleteItem} isHighlighted={highlightedItemId === item.id} />)}
             </div>
           ) : (
             <>
               {uncategorized.length > 0 && (
                 <div className="space-y-4">
-                  {uncategorized.map(item => <ItemRow key={item.id} item={item} onToggle={toggleItem} onDelete={deleteItem} />)}
+                  {uncategorized.map(item => <ItemRow key={item.id} item={item} onToggle={toggleItem} onDelete={deleteItem} isHighlighted={highlightedItemId === item.id} />)}
                 </div>
               )}
 
@@ -220,7 +236,7 @@ export default function ShoppingList({ initialItems, categories, householdId, li
                 if (!catItems) return null
                 return (
                   <div key={cat.id} className="space-y-4 mt-2">
-                    {catItems.map(item => <ItemRow key={item.id} item={item} onToggle={toggleItem} onDelete={deleteItem} />)}
+                    {catItems.map(item => <ItemRow key={item.id} item={item} onToggle={toggleItem} onDelete={deleteItem} isHighlighted={highlightedItemId === item.id} />)}
                   </div>
                 )
               })}
@@ -250,7 +266,7 @@ export default function ShoppingList({ initialItems, categories, householdId, li
             </button>
             {showBought && (
               <div className="mt-4 grid grid-cols-1 gap-4">
-                {boughtItems.map(item => <ItemRow key={item.id} item={item} onToggle={toggleItem} onDelete={deleteItem} />)}
+                {boughtItems.map(item => <ItemRow key={item.id} item={item} onToggle={toggleItem} onDelete={deleteItem} isHighlighted={highlightedItemId === item.id} />)}
               </div>
             )}
           </div>

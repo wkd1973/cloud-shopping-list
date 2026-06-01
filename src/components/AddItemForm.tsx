@@ -1,15 +1,16 @@
 'use client'
 
 import { useRef, useState } from 'react'
-import type { Category } from '@/lib/types'
+import type { Category, FrequentItem } from '@/lib/types'
 
 interface Props {
   categories:        Category[]
+  frequentItems?:    FrequentItem[]
   defaultCategoryId: string | null
   onAdd:             (name: string, quantity: string, categoryId: string | null) => void
 }
 
-export default function AddItemForm({ categories, defaultCategoryId, onAdd }: Props) {
+export default function AddItemForm({ categories, frequentItems = [], defaultCategoryId, onAdd }: Props) {
   const [name, setName]             = useState('')
   const [quantity, setQuantity]     = useState('')
   const [categoryId, setCategoryId] = useState<string | null>(defaultCategoryId)
@@ -32,11 +33,23 @@ export default function AddItemForm({ categories, defaultCategoryId, onAdd }: Pr
     inputRef.current?.blur()
   }
 
+  function handleSuggestionClick(suggestion: FrequentItem) {
+    setName(suggestion.name)
+    if (suggestion.category_id) {
+      setCategoryId(suggestion.category_id)
+    }
+    inputRef.current?.focus()
+  }
+
+  const filteredSuggestions = frequentItems
+    .filter(item => name.trim() === '' || (item.name.toLowerCase().includes(name.toLowerCase()) && item.name.toLowerCase() !== name.toLowerCase()))
+    .slice(0, 5)
+
   return (
     <form onSubmit={handleSubmit}
-      className={`rounded-2xl border bg-surface-container-lowest overflow-hidden transition-all duration-300 ${shaking ? 'animate-shake border-error' : ''} ${expanded ? 'border-primary shadow-md' : 'border-border-subtle hover:border-outline-variant'}`}
+      className={`relative rounded-2xl border bg-surface-container-lowest transition-all duration-300 ${shaking ? 'animate-shake border-error' : ''} ${expanded ? 'border-primary shadow-md' : 'border-border-subtle hover:border-outline-variant'}`}
     >
-      <div className="flex items-center gap-2 px-4 py-3">
+      <div className="flex items-center gap-2 px-4 py-3 relative">
         <span className="material-symbols-outlined text-outline-variant text-[20px] flex-shrink-0">add_circle</span>
         <input
           ref={inputRef}
@@ -54,8 +67,26 @@ export default function AddItemForm({ categories, defaultCategoryId, onAdd }: Pr
         </button>
       </div>
 
+      {expanded && filteredSuggestions.length > 0 && (
+        <div className="absolute top-[3.5rem] left-0 right-0 mx-2 bg-surface-container-lowest border border-surface-container rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] z-50 py-2">
+          <span className="text-[10px] uppercase font-bold text-outline-variant tracking-wider ml-4 mb-1 block">Podpowiedzi</span>
+          {filteredSuggestions.map(sug => {
+            const cat = categories.find(c => c.id === sug.category_id)
+            return (
+              <button key={sug.name} type="button" onClick={() => handleSuggestionClick(sug)} 
+                className="w-full text-left px-4 py-2 text-[14px] font-body-md text-on-surface hover:bg-surface-container-highest flex items-center justify-between transition-colors"
+              >
+                <span>{sug.name}</span>
+                {cat && <span className="text-[12px] text-on-surface-variant flex items-center gap-1"><span className="opacity-70">{cat.emoji}</span> {cat.name}</span>}
+              </button>
+            )
+          })}
+        </div>
+      )}
+
       {expanded && (
-        <div className="px-4 pb-4 border-t border-surface-container pt-3 space-y-3 bg-surface-container-low/50">
+        <div className="px-4 pb-4 border-t border-surface-container pt-3 space-y-3 bg-surface-container-low/50 rounded-b-2xl">
+
           <input
             type="text"
             value={quantity}
@@ -64,7 +95,7 @@ export default function AddItemForm({ categories, defaultCategoryId, onAdd }: Pr
             className="w-full bg-transparent font-code-sm text-[12px] text-on-surface-variant placeholder:text-outline-variant focus:outline-none"
           />
           {categories.length > 0 && (
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 pt-1">
               <button type="button" onClick={() => setCategoryId(null)}
                 className={`px-3 py-1.5 rounded-full font-label-sm text-[12px] transition-all border
                   ${categoryId === null ? 'bg-secondary text-on-secondary border-secondary shadow-sm' : 'bg-surface-container-lowest text-on-surface-variant border-border-subtle hover:border-outline-variant'}`}

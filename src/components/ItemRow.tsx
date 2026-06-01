@@ -3,18 +3,21 @@
 import type { Item } from '@/lib/types'
 
 interface Props {
-  item:     Item
-  onToggle: (id: string) => void
-  onDelete: (id: string) => void
+  item:          Item
+  onToggle:      (id: string) => void
+  onDelete:      (id: string) => void
+  isHighlighted?: boolean
 }
 
-export default function ItemRow({ item, onToggle, onDelete }: Props) {
+export default function ItemRow({ item, onToggle, onDelete, isHighlighted }: Props) {
   const isBought = item.is_bought
   const cat = item.category
   
   return (
-    <div className={`animate-fade-in px-3 py-2 rounded-xl border shadow-sm flex items-center justify-between group transition-colors duration-200
-      ${isBought ? 'bg-surface-container/30 border-gray-100 opacity-60' : 'bg-surface-container-lowest border-gray-200 hover:border-primary'}
+    <div className={`px-3 py-2 rounded-xl border shadow-sm flex items-center justify-between group transition-all duration-300
+      ${isHighlighted ? 'animate-pulse bg-primary/10 border-primary scale-[1.02]' : ''}
+      ${!isHighlighted && isBought ? 'bg-surface-container/30 border-gray-100 opacity-60' : ''}
+      ${!isHighlighted && !isBought ? 'bg-surface-container-lowest border-gray-200 hover:border-primary' : ''}
     `}>
       <div className="flex items-center gap-3 min-w-0">
         <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-xl flex-shrink-0

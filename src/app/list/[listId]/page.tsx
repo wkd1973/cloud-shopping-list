@@ -34,15 +34,17 @@ export default async function ListPage(props: Props) {
 
   if (!membership) redirect('/list')
 
-  const [{ data: categories }, { data: items }] = await Promise.all([
+  const [{ data: categories }, { data: items }, { data: frequentItems }] = await Promise.all([
     supabase.from('categories').select('*').eq('household_id', householdId).order('sort_order'),
     supabase.from('items').select('*, category:categories(*)').eq('list_id', params.listId).is('archived_at', null).order('created_at', { ascending: false }),
+    supabase.rpc('get_frequent_items', { p_household_id: householdId, p_limit: 50 }),
   ])
 
   return (
     <ShoppingList
       initialItems={(items ?? []) as Item[]}
       categories={(categories ?? []) as Category[]}
+      frequentItems={(frequentItems ?? []) as any[]}
       householdId={householdId}
       listId={params.listId}
       listName={shoppingList.name}
