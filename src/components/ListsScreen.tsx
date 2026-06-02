@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 import type { ShoppingList } from '@/lib/types'
 import InviteModal from './InviteModal'
 import MembersModal from './MembersModal'
+import { APP_VERSION } from '@/lib/version'
 
 const EMOJIS = ['🛒','🎄','🎁','🏠','🍕','🧹','💊','🐾','📦','✈️','🎂','🛠️']
 
@@ -113,7 +114,7 @@ export default function ListsScreen({ lists: initialLists, householdId, househol
             {showMenu && (
               <>
                 <div className="fixed inset-0 z-20" onClick={() => setShowMenu(false)} />
-                <div className="absolute right-0 top-10 z-30 w-52 rounded-xl border border-gray-200 bg-white shadow-lg py-1 overflow-hidden">
+                <div className="absolute right-0 top-10 z-30 w-52 max-h-[80vh] overflow-y-auto rounded-xl border border-gray-200 bg-white shadow-lg py-1 origin-top-right animate-in fade-in zoom-in-95 duration-150">
                   <div className="px-3 py-2">
                     <p className="text-xs text-gray-400 truncate">{userEmail}</p>
                   </div>
@@ -146,6 +147,11 @@ export default function ListsScreen({ lists: initialLists, householdId, househol
                     <span className="material-symbols-outlined text-[18px]">logout</span>
                     Wyloguj się
                   </button>
+
+                  <div className="h-px bg-gray-100 my-1" />
+                  <div className="px-3 py-1.5 text-center">
+                    <span className="text-[10px] font-mono text-gray-400">Wersja {APP_VERSION}</span>
+                  </div>
                 </div>
               </>
             )}
