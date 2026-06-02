@@ -32,7 +32,7 @@ export default function ShoppingList({ initialItems, categories, frequentItems, 
   const router   = useRouter()
   const [items, setItems]                   = useState<Item[]>(initialItems)
   const [presets, setPresets]               = useState<Preset[]>(initialPresets)
-  const [filterCategory, setFilterCategory] = useState<string | null>(null)
+  const [filterCategories, setFilterCategories] = useState<string[]>([])
   const [sortBy, setSortBy]                 = useState<'name' | 'category'>('name')
   const [showMenu, setShowMenu]             = useState(false)
   const [showMembers, setShowMembers]       = useState(false)
@@ -299,7 +299,7 @@ export default function ShoppingList({ initialItems, categories, frequentItems, 
     router.push('/auth/login')
   }
 
-  const activeItems  = optimisticItems.filter(i => !i.is_bought && i.archived_at === null && (filterCategory === null || i.category_id === filterCategory))
+  const activeItems  = optimisticItems.filter(i => !i.is_bought && i.archived_at === null && (filterCategories.length === 0 || (i.category_id && filterCategories.includes(i.category_id))))
   const boughtItems  = optimisticItems.filter(i => i.is_bought && i.archived_at === null).sort((a, b) => a.name.localeCompare(b.name))
   const totalCount   = optimisticItems.filter(i => !i.archived_at).length
   const boughtCount  = boughtItems.length
@@ -433,7 +433,16 @@ export default function ShoppingList({ initialItems, categories, frequentItems, 
         {/* Wyświetlanie aktywnej zakładki */}
         {activeTab === 'lista' && (
           <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
-            <CategoryFilter categories={categories} activeCategory={filterCategory} onSelect={setFilterCategory} />
+            <CategoryFilter 
+              categories={categories} 
+              activeCategories={filterCategories} 
+              onToggleCategory={(id) => {
+                setFilterCategories(prev => 
+                  prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id]
+                )
+              }}
+              onClear={() => setFilterCategories([])}
+            />
 
             <PresetsCarousel 
               presets={presets} 
@@ -447,7 +456,7 @@ export default function ShoppingList({ initialItems, categories, frequentItems, 
                 frequentItems={combinedSuggestions} 
                 activeItems={activeItems}
                 selectedItemForEdit={selectedItemForEdit}
-                defaultCategoryId={filterCategory} 
+                defaultCategoryId={filterCategories.length === 1 ? filterCategories[0] : null} 
                 onAdd={addItem} 
               />
             </div>
