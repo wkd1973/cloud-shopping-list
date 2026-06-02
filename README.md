@@ -12,10 +12,14 @@ Cel: zweryfikować Realtime, RLS, magic link auth i invite flow przed wdrożenie
 - ✅ Logowanie bez hasła (magic link na email) oraz przez **Google** i **Facebook** (OAuth)
 - ✅ Zapraszanie domowników przez jednorazowy link i podgląd listy członków
 - ✅ Obsługa wielu domostw (możliwość przełączania się między gospodarstwami)
-- ✅ Kategorie z kolorami i emoji oraz sortowanie produktów (A-Z lub po kategoriach)
+- ✅ Kategorie z kolorami i emoji (w pełni edytowalne z poziomu UI)
+- ✅ Sortowanie produktów (A-Z lub po kategoriach)
 - ✅ Autopodpowiedzi najczęściej kupowanych produktów chroniące przed duplikatami
 - ✅ Oznaczanie produktów jako kupione → auto-archiwizacja po 24h (pg_cron)
 - ✅ Optimistic updates — UI reaguje natychmiast, nie czeka na serwer
+- ✅ Moduł szablonów zakupowych pozwalający grupować ulubione produkty
+- ✅ System wersjonowania aplikacji widoczny w interfejsie
+- ✅ Kosz na usunięte produkty (możliwość przywrócenia)
 
 ---
 
@@ -212,8 +216,6 @@ zakupy/
 
 ## Znane uproszczenia (celowe dla PoC)
 
-- Brak edycji produktu po dodaniu (tylko usuń i dodaj ponownie)
-- Brak zarządzania kategoriami z UI (edycja tylko przez SQL)
 - Brak testów automatycznych
 - Logowanie przez Facebook/Google w środowisku produkcyjnym wymaga weryfikacji domen i aplikacji po stronie dostawców OAuth.
 

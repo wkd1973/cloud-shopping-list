@@ -63,7 +63,8 @@ Aplikacja zbudowana jest z czterech głównych widoków dostępnych dla użytkow
 ### C. Ekran Konkretnej Listy (`/list/[listId]`)
 - **Cel:** Przegląd, odznaczanie i dodawanie produktów.
 - **Komponenty i Layout (`ShoppingList.tsx`):**
-  - **Header (nagłówek):** Przycisk wstecz, Emoji listy + Tytuł, podtytuł z informacją ile produktów zostało do kupienia. Posiada też menu (trzy kropki) np. do powiadomień Push.
+  - **Header (nagłówek):** Przycisk wstecz, Emoji listy + Tytuł. Posiada też rozwijane menu (trzy kropki), w którym znajduje się dostęp do opcji domostwa, zarządzania szablonami (PresetsManagerModal), zarządzania kategoriami (CategoriesManagerModal) oraz informacja o wersji aplikacji.
+  - **Zakładki (Tabs):** Trzy główne przyciski nawigacyjne ("Do kupienia", "Kupione", "Kosz"). W zakładkach wbudowane są bezpośrednio liczniki produktów (np. "Do kupienia (5)"), co pozwala optymalnie wykorzystać przestrzeń ekranu.
   - **Pasek Filtrów (`CategoryFilter.tsx`):** Przewijany w poziomie pasek z ikonami kategorii (pigułki z Emoji i nazwą). Aktywna kategoria jest podświetlona. Służy do filtrowania produktów.
   - **Lista Produktów:**
     - Renderowana przez zbiór `ItemRow.tsx`.
