@@ -349,7 +349,7 @@ export default function ShoppingList({ initialItems, categories: initialCategori
             {showMenu && (
               <>
                 <div className="fixed inset-0 z-20" onClick={() => setShowMenu(false)} />
-                <div className="absolute right-0 top-10 z-30 w-56 rounded-xl border border-border-subtle bg-surface-container-lowest shadow-lg py-1 overflow-hidden">
+                <div className="absolute right-0 top-10 z-30 w-56 max-h-[80vh] overflow-y-auto rounded-xl border border-surface-container bg-surface shadow-xl py-1 animate-in fade-in zoom-in-95 duration-150 origin-top-right">
                   <div className="px-3 py-2">
                     <p className="text-[12px] text-on-surface-variant truncate">{userEmail}</p>
                   </div>
