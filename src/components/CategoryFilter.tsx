@@ -26,7 +26,7 @@ export default function CategoryFilter({ categories, activeCategory, onSelect }:
   }
 
   return (
-    <div className="mb-10 w-full">
+    <div className="mb-4 w-full">
       <div className="flex justify-between items-center mb-4 px-1">
         <h3 className="font-headline-md text-[20px] font-semibold text-on-surface">Kategorie</h3>
         {activeCategory && (

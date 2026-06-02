@@ -22,7 +22,7 @@ export default function PresetsCarousel({ presets, onApplyPreset, onSaveAsPreset
   }
 
   return (
-    <div className="w-full mb-6">
+    <div className="w-full mb-4">
       <div className="flex items-center justify-between px-1 mb-2">
         <h3 className="font-headline-sm text-[16px] font-semibold text-on-surface">Szablony zakupowe</h3>
         {!isSaving && (

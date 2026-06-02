@@ -395,34 +395,34 @@ export default function ShoppingList({ initialItems, categories, frequentItems, 
       </header>
 
       <main className="max-w-screen-sm mx-auto pt-4 px-margin-mobile">
-        <section className="mt-4 mb-6 px-4 py-3 rounded-xl bg-emerald-50/50 border border-emerald-100 flex items-center gap-2">
+        <section className="mt-2 mb-4 px-3 py-2 rounded-xl bg-emerald-50/50 border border-emerald-100 flex items-center gap-2">
           <span className="text-lg">🛒</span>
-          <p className="text-[14px] text-emerald-800 font-medium">
+          <p className="text-[13px] text-emerald-800 font-medium">
             Masz <strong className="font-bold">{optimisticItems.filter(i => !i.is_bought && i.archived_at === null).length}</strong> produktów do kupienia
           </p>
         </section>
 
         {/* Zakładki (Tabs) */}
-        <div className="flex bg-surface-container-low rounded-xl p-1 mb-6 shadow-sm">
+        <div className="flex bg-surface-container-low rounded-xl p-1 mb-4 shadow-sm">
           <button 
             onClick={() => setActiveTab('lista')} 
-            className={`flex-1 flex flex-col sm:flex-row items-center justify-center gap-1 py-2 sm:py-2.5 rounded-lg text-[12px] sm:text-[14px] font-bold transition-all ${activeTab === 'lista' ? 'bg-surface shadow-sm text-primary' : 'text-on-surface-variant hover:text-on-surface'}`}
+            className={`flex-1 flex flex-row items-center justify-center gap-1.5 py-1.5 sm:py-2 rounded-lg text-[13px] sm:text-[14px] font-bold transition-all ${activeTab === 'lista' ? 'bg-surface shadow-sm text-primary' : 'text-on-surface-variant hover:text-on-surface'}`}
           >
-            <span className="material-symbols-outlined text-[18px] sm:text-[20px]">shopping_bag</span>
+            <span className="material-symbols-outlined text-[18px]">shopping_bag</span>
             <span>Do kupienia</span>
           </button>
           <button 
             onClick={() => setActiveTab('kupione')} 
-            className={`flex-1 flex flex-col sm:flex-row items-center justify-center gap-1 py-2 sm:py-2.5 rounded-lg text-[12px] sm:text-[14px] font-bold transition-all ${activeTab === 'kupione' ? 'bg-surface shadow-sm text-primary' : 'text-on-surface-variant hover:text-on-surface'}`}
+            className={`flex-1 flex flex-row items-center justify-center gap-1.5 py-1.5 sm:py-2 rounded-lg text-[13px] sm:text-[14px] font-bold transition-all ${activeTab === 'kupione' ? 'bg-surface shadow-sm text-primary' : 'text-on-surface-variant hover:text-on-surface'}`}
           >
-            <span className="material-symbols-outlined text-[18px] sm:text-[20px]">task_alt</span>
+            <span className="material-symbols-outlined text-[18px]">task_alt</span>
             <span>Kupione</span>
           </button>
           <button 
             onClick={() => setActiveTab('undo')} 
-            className={`flex-1 flex flex-col sm:flex-row items-center justify-center gap-1 py-2 sm:py-2.5 rounded-lg text-[12px] sm:text-[14px] font-bold transition-all relative ${activeTab === 'undo' ? 'bg-surface shadow-sm text-error' : 'text-on-surface-variant hover:text-on-surface'}`}
+            className={`flex-1 flex flex-row items-center justify-center gap-1.5 py-1.5 sm:py-2 rounded-lg text-[13px] sm:text-[14px] font-bold transition-all relative ${activeTab === 'undo' ? 'bg-surface shadow-sm text-error' : 'text-on-surface-variant hover:text-on-surface'}`}
           >
-            <span className="material-symbols-outlined text-[18px] sm:text-[20px]">delete</span>
+            <span className="material-symbols-outlined text-[18px]">delete</span>
             <span>Kosz</span>
             {undoList.length > 0 && (
               <span className="absolute top-1 right-2 sm:right-4 w-2 h-2 bg-error rounded-full"></span>
@@ -441,7 +441,7 @@ export default function ShoppingList({ initialItems, categories, frequentItems, 
               onSaveAsPreset={saveAsPreset} 
             />
 
-            <div className="mb-8">
+            <div className="mb-4">
               <AddItemForm 
                 categories={categories} 
                 frequentItems={combinedSuggestions} 
