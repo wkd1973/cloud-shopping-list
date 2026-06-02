@@ -392,8 +392,9 @@ export default function ShoppingList({ initialItems, categories: initialCategori
                   </button>
 
                   <div className="h-px bg-surface-container my-1" />
-                  <div className="px-3 py-1.5 text-center">
+                  <div className="px-3 py-1.5 text-center flex flex-col gap-0.5">
                     <span className="text-[10px] font-mono text-on-surface-variant opacity-50">Wersja {APP_VERSION}</span>
+                    <span className="text-[10px] text-on-surface-variant opacity-50">Stworzone przez <a href="https://github.com/wkd1973" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">Wojciecha Dobrowolskiego</a></span>
                   </div>
                 </div>
               </>

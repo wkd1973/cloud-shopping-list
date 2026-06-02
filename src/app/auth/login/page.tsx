@@ -42,7 +42,10 @@ export default async function LoginPage(props: Props) {
           <Link href="/privacy" className="underline hover:text-primary">Politykę Prywatności</Link>.
           <br/>
           <Link href="/help" className="underline hover:text-primary mt-1 inline-block">Potrzebujesz pomocy?</Link>
-          <div className="mt-2 text-[10px] font-mono opacity-50">Wersja {APP_VERSION}</div>
+          <div className="mt-2 text-[10px] text-on-surface-variant opacity-50 flex flex-col items-center gap-0.5">
+            <span className="font-mono">Wersja {APP_VERSION}</span>
+            <span>Stworzone przez <a href="https://github.com/wkd1973" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">Wojciecha Dobrowolskiego</a></span>
+          </div>
         </div>
       </div>
       

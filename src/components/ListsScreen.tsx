@@ -149,8 +149,9 @@ export default function ListsScreen({ lists: initialLists, householdId, househol
                   </button>
 
                   <div className="h-px bg-gray-100 my-1" />
-                  <div className="px-3 py-1.5 text-center">
+                  <div className="px-3 py-1.5 text-center flex flex-col gap-0.5">
                     <span className="text-[10px] font-mono text-gray-400">Wersja {APP_VERSION}</span>
+                    <span className="text-[10px] text-gray-400">Stworzone przez <a href="https://github.com/wkd1973" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-500 transition-colors">Wojciecha Dobrowolskiego</a></span>
                   </div>
                 </div>
               </>
