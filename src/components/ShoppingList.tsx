@@ -11,6 +11,8 @@ import CategoryFilter from './CategoryFilter'
 import MembersModal from './MembersModal'
 import PresetsCarousel from './PresetsCarousel'
 import PresetsManagerModal from './PresetsManagerModal'
+import CategoriesManagerModal from './CategoriesManagerModal'
+import { APP_VERSION } from '@/lib/version'
 import type { Preset } from '@/lib/types'
 
 interface Props {
@@ -27,16 +29,18 @@ interface Props {
   isAdmin:       boolean
 }
 
-export default function ShoppingList({ initialItems, categories, frequentItems, presets: initialPresets, householdId, listId, listName, listEmoji, userId, userEmail, isAdmin }: Props) {
+export default function ShoppingList({ initialItems, categories: initialCategories, frequentItems, presets: initialPresets, householdId, listId, listName, listEmoji, userId, userEmail, isAdmin }: Props) {
   const supabase = createClient()
   const router   = useRouter()
   const [items, setItems]                   = useState<Item[]>(initialItems)
   const [presets, setPresets]               = useState<Preset[]>(initialPresets)
+  const [categories, setCategories]         = useState<Category[]>(initialCategories)
   const [filterCategories, setFilterCategories] = useState<string[]>([])
   const [sortBy, setSortBy]                 = useState<'name' | 'category'>('name')
   const [showMenu, setShowMenu]             = useState(false)
   const [showMembers, setShowMembers]       = useState(false)
   const [showPresetsManager, setShowPresetsManager] = useState(false)
+  const [showCategoriesManager, setShowCategoriesManager] = useState(false)
   const [highlightedItemId, setHighlightedItemId] = useState<string | null>(null)
   const [selectedItemForEdit, setSelectedItemForEdit] = useState<Item | null>(null)
   
@@ -360,6 +364,10 @@ export default function ShoppingList({ initialItems, categories, frequentItems, 
                     <span className="material-symbols-outlined text-[18px]">edit_square</span>
                     Zarządzaj szablonami
                   </button>
+                  <button onClick={() => { setShowMenu(false); setShowCategoriesManager(true); }} className="w-full text-left px-3 py-2 text-[14px] text-on-surface hover:bg-surface-container-low transition-colors flex items-center gap-2">
+                    <span className="material-symbols-outlined text-[18px]">category</span>
+                    Zarządzaj kategoriami
+                  </button>
 
                   <div className="h-px bg-surface-container my-1" />
 
@@ -382,6 +390,11 @@ export default function ShoppingList({ initialItems, categories, frequentItems, 
                     <span className="material-symbols-outlined text-[18px]">logout</span>
                     Wyloguj się
                   </button>
+
+                  <div className="h-px bg-surface-container my-1" />
+                  <div className="px-3 py-1.5 text-center">
+                    <span className="text-[10px] font-mono text-on-surface-variant opacity-50">Wersja {APP_VERSION}</span>
+                  </div>
                 </div>
               </>
             )}
@@ -562,6 +575,14 @@ export default function ShoppingList({ initialItems, categories, frequentItems, 
           presets={presets} 
           onClose={() => setShowPresetsManager(false)} 
           onPresetsUpdated={setPresets} 
+        />
+      )}
+      {showCategoriesManager && (
+        <CategoriesManagerModal 
+          householdId={householdId}
+          categories={categories} 
+          onClose={() => setShowCategoriesManager(false)} 
+          onCategoriesUpdated={setCategories} 
         />
       )}
     </div>

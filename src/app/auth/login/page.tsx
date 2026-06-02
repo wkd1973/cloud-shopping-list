@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import LoginForm from './LoginForm'
 import Link from 'next/link'
+import { APP_VERSION } from '@/lib/version'
 
 interface Props { searchParams: Promise<{ redirectTo?: string; error?: string }> }
 
@@ -41,6 +42,7 @@ export default async function LoginPage(props: Props) {
           <Link href="/privacy" className="underline hover:text-primary">Politykę Prywatności</Link>.
           <br/>
           <Link href="/help" className="underline hover:text-primary mt-1 inline-block">Potrzebujesz pomocy?</Link>
+          <div className="mt-2 text-[10px] font-mono opacity-50">Wersja {APP_VERSION}</div>
         </div>
       </div>
       
