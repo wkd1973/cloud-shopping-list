@@ -39,17 +39,17 @@ export default function CategoryFilter({ categories, activeCategory, onSelect }:
       {/* Kontener poziomego przewijania - Embla */}
       <div className="w-full relative flex items-center" style={{ maskImage: 'linear-gradient(to right, transparent, black 5%, black 95%, transparent)', WebkitMaskImage: 'linear-gradient(to right, transparent, black 5%, black 95%, transparent)' }}>
         <div className="overflow-hidden w-full select-none" ref={emblaRef}>
-          <div className="flex gap-4 px-4 pb-4 pt-1 touch-pan-y">
+          <div className="flex gap-3 px-4 pb-4 pt-1 touch-pan-y">
             {displayCategories.map((cat, index) => (
               <button key={`${cat.id}-${index}`} onClick={(e) => handleClick(e, cat.id)}
-                className={`flex-shrink-0 w-[140px] p-4 rounded-3xl border flex flex-col items-center justify-center gap-2 hover:bg-primary-container/20 transition-all active:scale-95
+                className={`flex-shrink-0 w-[100px] p-3 rounded-2xl border flex flex-col items-center justify-center gap-1.5 hover:bg-primary-container/20 transition-all active:scale-95
                   ${activeCategory === cat.id ? 'bg-primary-container/20 border-primary-container shadow-sm' : 'bg-surface-container-low border-border-subtle'}
                 `}
               >
-                <div className="w-12 h-12 rounded-full flex items-center justify-center text-2xl" style={{ backgroundColor: cat.color ? `${cat.color}33` : '#eef6ee' }}>
+                <div className="w-10 h-10 rounded-full flex items-center justify-center text-xl" style={{ backgroundColor: cat.color ? `${cat.color}33` : '#eef6ee' }}>
                   {cat.emoji}
                 </div>
-                <span className="font-body-lg text-[16px] font-bold text-on-surface truncate w-full text-center pointer-events-none">{cat.name}</span>
+                <span className="font-body-sm text-[13px] font-bold text-on-surface truncate w-full text-center pointer-events-none">{cat.name}</span>
               </button>
             ))}
           </div>
